@@ -1,0 +1,40 @@
+-----------------------
+Prerequisite Libraries
+-----------------------
+
+1. OpenGl (Mesa libraries)
+2. Qt5 libraries
+
+-----------
+Build Steps
+-----------
+
+1. Change directory to folder MT2013008_Assignment1/Src
+2. Run the following command
+
+qmake MT2013008_Assignment1.pro -o ../Build/Makefile
+
+This will generate the Makefile in the Build folder.
+
+3. Change directory to folder MT2013008_Assignment1/Build
+4. Run the following command
+
+make
+
+This will build the complete project and generate and executable in the Build directory.
+
+5. To start the application execute following command 
+
+./MT2013008_assignment1
+
+
+------
+Usage
+------
+
+1. Application starts in Bernstein mode by default.
+2. To draw bezier curve, just click points on screen, curve will be drawn.
+3. To add a new point, just click once more, curve will be redrawn automatically.
+4. To use Casteljau Algo, check the appropriate check box and click a point to see the new Curve.
+5. Use various scrool bars to scale,translate,rotate the curve.
+
