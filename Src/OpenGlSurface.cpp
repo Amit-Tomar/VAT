@@ -41,7 +41,7 @@ OpenGlSurface::OpenGlSurface(int x , int y, int width, int height, QGLWidget *pa
     std::cout << "Parsing started.." << std::endl;
     char *str = (char*)malloc(sizeof(char)*100);
 
-    /* For ecoli
+    ///* For ecoli
     while( EOF != scanf("%s %f %f %f %f %f %f %f %*[^\n]",&str,&f1,&f2,&f3,&f4,&f5,&f6,&f7) )
     {
         std::vector<float> features ;
@@ -54,11 +54,11 @@ OpenGlSurface::OpenGlSurface(int x , int y, int width, int height, QGLWidget *pa
         features.push_back(f7);
 
         DataPoint<float> data(features);
-        irisDataSet.pushDataPoint(data);
+        dataSet.pushDataPoint(data);
 
-    }*/
+    }//*/
 
-    ///* For iris
+    /* For iris
     while( EOF != scanf("%f,%f,%f,%f,%*[^\n]",&f1,&f2,&f3,&f4) )
     {
         std::vector<float> features ;
@@ -71,11 +71,11 @@ OpenGlSurface::OpenGlSurface(int x , int y, int width, int height, QGLWidget *pa
 
         irisDataSet.pushDataPoint(data);
         //std::cout << "Parsing " << f1 << std::endl;
-    } //*/
+    } */
 
     std::cout << "Parsing finished.." << std::endl;
 
-    distanceMatrix.allocateAndFill(irisDataSet);
+    distanceMatrix.allocateAndFill(dataSet);
     distanceMatrix.normalizeMatrix();
     distanceMatrix.fillMaxInfo();
     distanceMatrix.applyVAT();

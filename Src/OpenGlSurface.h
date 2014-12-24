@@ -59,7 +59,7 @@ private:
     bool rotationAxisZ;
     bool useBernsteinAlgo;
 
-    DataSet <float,float> irisDataSet;
+    DataSet <float,float> dataSet;
     DissimilarityMatrix distanceMatrix;
 };
 
