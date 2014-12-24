@@ -38,8 +38,11 @@ OpenGlSurface::OpenGlSurface(int x , int y, int width, int height, QGLWidget *pa
     // Parse and fillin the data sets
     float f1,f2,f3,f4,f5,f6,f7;
 
+    std::cout << "Parsing started.." << std::endl;
+    char *str = (char*)malloc(sizeof(char)*100);
+
     /* For ecoli
-    while( EOF != scanf("%f %f %f %f %f %f %f %*[^\n]",&f1,&f2,&f3,&f4,&f5,&f6,&f7) )
+    while( EOF != scanf("%s %f %f %f %f %f %f %f %*[^\n]",&str,&f1,&f2,&f3,&f4,&f5,&f6,&f7) )
     {
         std::vector<float> features ;
         features.push_back(f1);
@@ -51,14 +54,11 @@ OpenGlSurface::OpenGlSurface(int x , int y, int width, int height, QGLWidget *pa
         features.push_back(f7);
 
         DataPoint<float> data(features);
-
         irisDataSet.pushDataPoint(data);
-        std::cout << "Parsing " << f1 << std::endl;
+
     }*/
 
-    std::cout << "Parsing started.." << std::endl;
-
-    /* For iris */
+    ///* For iris
     while( EOF != scanf("%f,%f,%f,%f,%*[^\n]",&f1,&f2,&f3,&f4) )
     {
         std::vector<float> features ;
@@ -199,8 +199,7 @@ void OpenGlSurface::resizeGL(int width, int height)
  */
 void OpenGlSurface::mousePressEvent(QMouseEvent *event)
 {
-    this->grabFrameBuffer().save("output.png");
-
+    //this->grabFrameBuffer().save("output.png");
 
     std::pair<GLfloat,GLfloat> pointClicked( (event->x()) / (float) viewPortWidth , (viewPortHeight-event->y()) / (float)viewPortHeight );
     controlPointsList.push_back(pointClicked);
