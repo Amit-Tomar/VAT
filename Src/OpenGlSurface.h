@@ -26,14 +26,13 @@ class OpenGlSurface : public QGLWidget
     
 public:
     OpenGlSurface(int, int , int , int ,QGLWidget *parent = 0);
+    ~OpenGlSurface();
 
-    void setDrawingAlgoBernstein(bool);
     void drawRectangles (std::vector<std::pair<GLfloat,GLfloat> >, GLfloat,GLfloat,GLfloat,GLfloat );
-    void drawPolygon    (std::vector<std::pair<GLfloat,GLfloat> >, GLfloat,GLfloat,GLfloat,GLfloat );
-    void setScale(int);
-    void setRotation(int,int);
-    void setTranslateX(int);
-    void setTranslateY(int);
+
+public slots:
+
+    void saveFrameBuffer();
 
 protected:
     void initializeGL();
@@ -48,16 +47,6 @@ private:
 
     int viewPortWidth;
     int viewPortHeight;
-    int angle;
-
-    GLfloat scale;
-    GLfloat translateX;
-    GLfloat translateY;
-
-    bool rotationAxisX;
-    bool rotationAxisY;
-    bool rotationAxisZ;
-    bool useBernsteinAlgo;
 
     DataSet <float,float> dataSet;
     DissimilarityMatrix distanceMatrix;

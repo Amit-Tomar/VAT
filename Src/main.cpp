@@ -7,17 +7,18 @@
  */
 
 #include "OpenGlSurface.h"
-#include "MainWindow.h"
 #include <QApplication>
+#include <OpenGlSurface.h>
 
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
 
-    MainWindow mw;
-    //mw.setWindowFlags(Qt::SplashScreen);
+    OpenGlSurface *surface = new OpenGlSurface(0,0,600,600);
 
-    mw.show();
+    surface->show();
+
+    QObject::connect(&a,SIGNAL(aboutToQuit()),surface,SLOT(saveFrameBuffer()));
 
     return a.exec();
 }
