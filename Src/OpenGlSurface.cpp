@@ -88,7 +88,7 @@ void OpenGlSurface::drawRectangles(std::vector<std::pair<GLfloat, GLfloat> > poi
                  glEnable(GL_BLEND);
                  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-                 glColor4f(0, .5, 0, 1 - distanceMatrix.getValue(i,j) );
+                 glColor4f(0, 0, 0, 1 - distanceMatrix.getValue(i,j) );
                  float squareWidth = 1 / (float)distanceMatrix.getSize() ;
 
                  glRectf(i*squareWidth, j*squareWidth, (i+1)*squareWidth, (j+1)*squareWidth);
