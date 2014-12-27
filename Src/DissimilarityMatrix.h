@@ -13,19 +13,20 @@ public:
     DissimilarityMatrix();
 
     void normalizeMatrix();
+    void randomRearrangeMatrix();
     void setSize(int size) { dissimilarityMatrixSize = size ; }
     int  getSize() { return dissimilarityMatrixSize; }
-    float getValue(int i, int j) { return dissimilarityMatrix[i][j] ; }
+    double getValue(int i, int j) { return dissimilarityMatrix[i][j] ; }
     void printMatrix();
     void fillMaxInfo();
     void applyVAT();
-    void allocateAndFill(DataSet<float,float>);
+    void allocateAndFill(DataSet<double,double>);
 
 private:
 
-    float ** dissimilarityMatrix;
+    double ** dissimilarityMatrix;
     unsigned int dissimilarityMatrixSize;
-    float maximumDistance;
+    double maximumDistance;
     int maximumDistanceIndex ;
 
 };

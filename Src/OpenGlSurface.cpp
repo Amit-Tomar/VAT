@@ -24,53 +24,57 @@ OpenGlSurface::OpenGlSurface(int x , int y, int width, int height, QGLWidget *pa
     setFormat(QGLFormat(QGL::DoubleBuffer | QGL::DepthBuffer));
     setGeometry(x,y,width,height);
     initializeGL();
+    drawVATAsRectangles = true ;
+    renderingCircleSize = 5;
 
-    // Parse and fillin the data sets
-    float f1,f2,f3,f4,f5,f6,f7;
+    bool flag = true;
+    std::vector<double> readFeatureList;
 
     std::cout << "Parsing started.." << std::endl;
 
-
-    /* For ecoli
-    while( EOF != scanf("%f %f %f %f %f %f %f %*[^\n]",&f1,&f2,&f3,&f4,&f5,&f6,&f7) )
+    while(flag)
     {
-        std::vector<float> features ;
-        features.push_back(f1);
-        features.push_back(f2);
-        features.push_back(f3);
-        features.push_back(f4);
-        features.push_back(f5);
-        features.push_back(f6);
-        features.push_back(f7);
+        double tempFeature;
+        readFeatureList.clear();
 
-        DataPoint<float> data(features);
+        for( int i = 0 ; i < DIMENSIONS_IN_DATA ; ++i )
+        {
+            if( EOF != scanf("%lf",&tempFeature))
+                readFeatureList.push_back(tempFeature);
+            else
+            {
+                flag = false;
+                break;
+            }
+        }
 
-        irisDataSet.pushDataPoint(data);
-        std::cout << "Parsing " << f1 << std::endl;
-    }*/
+        if( flag )
+        {
+            DataPoint<double> data(readFeatureList);
+            dataSet.pushDataPoint(data);
+        }
+    }
 
+    std::cout << DIMENSIONS_IN_DATA << " dimensional data with " << dataSet.getDataPointsList().size() << " vectors." << std::endl ;
 
-    /* For iris */
-    while( EOF != scanf("%f,%f,%f,%f,%*[^\n]",&f1,&f2,&f3,&f4) )
-    {
-        std::vector<float> features ;
-        features.push_back(f1);
-        features.push_back(f2);
-        features.push_back(f3);
-        features.push_back(f4);
-
-        DataPoint<float> data(features);
-
-        dataSet.pushDataPoint(data);
-        //std::cout << "Parsing " << f1 << std::endl;
-    } //*/
+    std::cout << "Randomizing data set.." << std::endl;
+    dataSet.randomRearrangeDataset();
 
     std::cout << "Parsing finished.." << std::endl;
 
-    distanceMatrix.allocateAndFill(dataSet);
-    distanceMatrix.normalizeMatrix();
+    std::cout << "Allocating memory and filling dissimilarity matrix.." << std::endl;
+    distanceMatrix.allocateAndFill(dataSet);    
+
+    std::cout << "Normalizing dissimilarity matrix.." << std::endl;
+    distanceMatrix.normalizeMatrix();    
+
+    std::cout << "Finding Maximum.." << std::endl;
     distanceMatrix.fillMaxInfo();
+
+    std::cout << "Applying VAT.." << std::endl;
     distanceMatrix.applyVAT();
+
+    std::cout << "Rendering.." << std::endl;
 }
 
 OpenGlSurface::~OpenGlSurface()
@@ -78,7 +82,7 @@ OpenGlSurface::~OpenGlSurface()
 }
 
 
-void OpenGlSurface::drawRectangles(std::vector<std::pair<GLfloat, GLfloat> > pointsList , GLfloat red, GLfloat green, GLfloat blue, GLfloat thickness)
+void OpenGlSurface::drawRectangles(std::vector<std::pair<GLdouble, GLdouble> > pointsList , GLdouble red, GLdouble green, GLdouble blue, GLdouble thickness)
 {
         for ( unsigned int  i = 0; i < distanceMatrix.getSize(); ++i)
         {
@@ -88,12 +92,21 @@ void OpenGlSurface::drawRectangles(std::vector<std::pair<GLfloat, GLfloat> > poi
                  glEnable(GL_BLEND);
                  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-                 glColor4f(0, 0, 0, 1 - distanceMatrix.getValue(i,j) );
-                 float squareWidth = 1 / (float)distanceMatrix.getSize() ;
+                 glColor4f(0, 0, 0, 1 - distanceMatrix.getValue(i,j) );                 
 
-                 glRectf(i*squareWidth, j*squareWidth, (i+1)*squareWidth, (j+1)*squareWidth);
+                 double squareWidth = 1 / (double)distanceMatrix.getSize() ;
 
-                 glEnd();
+                 if( drawVATAsRectangles )
+                    glRectf(i*squareWidth, j*squareWidth, (i+1)*squareWidth, (j+1)*squareWidth);
+                 else
+                 {
+                     glEnable(GL_POINT_SMOOTH);
+                     glHint(GL_POINT_SMOOTH_HINT, GL_NICEST);
+                     glPointSize(renderingCircleSize);
+                     glBegin(GL_POINTS);
+                        glVertex3f(i*squareWidth, j*squareWidth,0);
+                     glEnd();
+                 }
              }
         }
 
@@ -155,11 +168,30 @@ void OpenGlSurface::resizeGL(int width, int height)
  */
 void OpenGlSurface::mousePressEvent(QMouseEvent *event)
 {
+    saveFrameBuffer();
 
-    std::pair<GLfloat,GLfloat> pointClicked( (event->x()) / (float) viewPortWidth , (viewPortHeight-event->y()) / (float)viewPortHeight );
+    std::pair<GLdouble,GLdouble> pointClicked( (event->x()) / (double) viewPortWidth , (viewPortHeight-event->y()) / (double)viewPortHeight );
     controlPointsList.push_back(pointClicked);
 
     update();
+}
+
+void OpenGlSurface::keyPressEvent(QKeyEvent * keyevent)
+{
+    if( keyevent->key() == Qt::Key_T )
+    {
+        drawVATAsRectangles = !drawVATAsRectangles;
+    }
+
+    else if( keyevent->key() == Qt::Key_Up )
+    {
+        renderingCircleSize ++ ;
+    }
+
+    else if( keyevent->key() == Qt::Key_Down )
+    {
+        renderingCircleSize -- ;
+    }
 }
 
 /*

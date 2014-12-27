@@ -12,7 +12,7 @@ class DataSet
 {
 public:
     DataSet(){}
-    virtual ~ DataSet() {}
+    virtual ~ DataSet() {}    
 
     virtual dataPointDistanceType getDistanceBetweenPoints(DataPoint <dataPointFeatureType> point1,DataPoint <dataPointFeatureType> point2)
     {
@@ -26,7 +26,7 @@ public:
         }
 
         return (dataPointDistanceType) sqrt(distance);
-    }
+    }    
 
     std::vector <DataPoint<dataPointFeatureType> > & getDataPointsList()
     {
@@ -38,9 +38,23 @@ public:
         dataPointsList.push_back(data);
     }
 
+    void randomRearrangeDataset()
+    {
+            for( unsigned int i = 0 ; i < dataPointsList.size() ; ++i)
+            {
+                int randomDatavaluePosition = rand() % dataPointsList.size();
+
+                DataPoint<dataPointFeatureType> temp = dataPointsList[randomDatavaluePosition];
+                dataPointsList[randomDatavaluePosition] = dataPointsList[i];
+                dataPointsList[i] = temp;
+            }
+    }
+
 private:
 
     std::vector <DataPoint<dataPointFeatureType> > dataPointsList;
 };
+
+
 
 #endif // DATASET_H

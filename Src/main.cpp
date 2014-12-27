@@ -16,9 +16,7 @@ int main(int argc, char *argv[])
 
     OpenGlSurface *surface = new OpenGlSurface(0,0,600,600);
 
-    surface->show();
-
-    QObject::connect(&a,SIGNAL(aboutToQuit()),surface,SLOT(saveFrameBuffer()));
+    surface->show();    
 
     return a.exec();
 }

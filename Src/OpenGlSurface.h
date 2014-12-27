@@ -20,6 +20,8 @@
 #include <DataSet.h>
 #include <DissimilarityMatrix.h>
 
+#define DIMENSIONS_IN_DATA 13
+
 class OpenGlSurface : public QGLWidget
 {
     Q_OBJECT
@@ -28,7 +30,7 @@ public:
     OpenGlSurface(int, int , int , int ,QGLWidget *parent = 0);
     ~OpenGlSurface();
 
-    void drawRectangles (std::vector<std::pair<GLfloat,GLfloat> >, GLfloat,GLfloat,GLfloat,GLfloat );
+    void drawRectangles (std::vector<std::pair<GLdouble,GLdouble> >, GLdouble,GLdouble,GLdouble,GLdouble );
 
 public slots:
 
@@ -39,17 +41,21 @@ protected:
     void paintGL();
     void resizeGL(int,int);
     void mousePressEvent(QMouseEvent *event);
+    void keyPressEvent(QKeyEvent*);
     void draw();
 
 private:
-    std::vector<std::pair<GLfloat,GLfloat> > controlPointsList;
-    std::vector<std::pair<GLfloat,GLfloat> > curvePointsList;
+    std::vector<std::pair<GLdouble,GLdouble> > controlPointsList;
+    std::vector<std::pair<GLdouble,GLdouble> > curvePointsList;
 
     int viewPortWidth;
     int viewPortHeight;
 
-    DataSet <float,float> dataSet;
+    DataSet <double,double> dataSet;
     DissimilarityMatrix distanceMatrix;
+
+    bool drawVATAsRectangles;
+    int renderingCircleSize;
 };
 
 #endif // OpenGlSurface_H

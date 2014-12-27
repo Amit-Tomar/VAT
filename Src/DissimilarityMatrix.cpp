@@ -8,7 +8,7 @@ DissimilarityMatrix::DissimilarityMatrix()
 
 void DissimilarityMatrix::normalizeMatrix()
 {
-    float maxDistance = 0.0f;
+    double maxDistance = 0.0f;
 
     // Find maximum distance
     for( unsigned int i = 0 ; i < dissimilarityMatrixSize ; ++i)
@@ -27,6 +27,22 @@ void DissimilarityMatrix::normalizeMatrix()
                 dissimilarityMatrix[i][j] = dissimilarityMatrix[i][j] / maxDistance;
         }
     }
+}
+
+void DissimilarityMatrix::randomRearrangeMatrix()
+{
+//    for( unsigned int i = 0 ; i < 3 ; ++i)
+//    {
+//        int randomColumn = (rand() % dissimilarityMatrixSize);
+
+//        for( unsigned int j = 0 ; j < dissimilarityMatrixSize ; ++j)
+//        {
+//            double temp = dissimilarityMatrix[i][j];
+//            dissimilarityMatrix[i][j] = dissimilarityMatrix[randomColumn][j];
+//            dissimilarityMatrix[randomColumn][j] = temp;
+//        }
+//    }
+
 }
 
 void DissimilarityMatrix::printMatrix()
@@ -71,7 +87,7 @@ void DissimilarityMatrix::applyVAT()
 
     while( 0 != vertices.size() )
     {
-        float minimumDistance = 1.0f;
+        double minimumDistance = 1.0f;
         unsigned int minimumDistanceVertex  = 0;
 
         // Apply VAT
@@ -92,11 +108,11 @@ void DissimilarityMatrix::applyVAT()
     }//
 
 
-    float ** dissimilarityMatrix2 = (float **) malloc(sizeof(float*)*dissimilarityMatrixSize);
+    double ** dissimilarityMatrix2 = (double **) malloc(sizeof(double*)*dissimilarityMatrixSize);
 
     for( unsigned int i = 0 ; i < dissimilarityMatrixSize ; ++i)
     {
-        dissimilarityMatrix2[i] = (float *) malloc(sizeof(float) * dissimilarityMatrixSize );
+        dissimilarityMatrix2[i] = (double *) malloc(sizeof(double) * dissimilarityMatrixSize );
     }
 
     // Exchange Columns
@@ -118,14 +134,14 @@ void DissimilarityMatrix::applyVAT()
     }
 }
 
-void DissimilarityMatrix::allocateAndFill(DataSet<float,float> dataSet)
+void DissimilarityMatrix::allocateAndFill(DataSet<double,double> dataSet)
 {
     dissimilarityMatrixSize = dataSet.getDataPointsList().size() ;
-    dissimilarityMatrix = (float **) malloc(sizeof(float*)*dataSet.getDataPointsList().size());
+    dissimilarityMatrix = (double **) malloc(sizeof(double*)*dataSet.getDataPointsList().size());
 
     for( unsigned int i = 0 ; i < getSize() ; ++i)
     {
-        dissimilarityMatrix[i] = (float *) malloc(sizeof(float) * getSize() );
+        dissimilarityMatrix[i] = (double *) malloc(sizeof(double) * getSize() );
     }
 
     // Fill in the dissimilarity matrix
@@ -136,7 +152,9 @@ void DissimilarityMatrix::allocateAndFill(DataSet<float,float> dataSet)
             if( i == j )
                 dissimilarityMatrix[i][j] = 0.0;
             else
+            {
                 dissimilarityMatrix[i][j] = dataSet.getDistanceBetweenPoints(dataSet.getDataPointsList()[i], dataSet.getDataPointsList()[j]);
+            }
         }
     }
 }
