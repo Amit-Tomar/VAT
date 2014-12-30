@@ -22,7 +22,7 @@ OpenGlSurface::OpenGlSurface(int x , int y, int width, int height, QGLWidget *pa
     : QGLWidget(QGLFormat(QGL::SampleBuffers), parent)
 {
     distanceMatrix.setSize(0);
-    setFormat(QGLFormat(QGL::DoubleBuffer | QGL::DepthBuffer));
+    setFormat(QGLFormat(QGL::DoubleBuffer | QGL::DepthBuffer));    
     setGeometry(x,y,width,height);
     initializeGL();
     drawVATAsRectangles = true ;
@@ -31,43 +31,55 @@ OpenGlSurface::OpenGlSurface(int x , int y, int width, int height, QGLWidget *pa
     bool flag = true;
     std::vector<double> readFeatureList;
 
-    std::cout << "Parsing started.." << std::endl;
-
-    while(flag)
+    if( IS_FEATURE_VECTOR_FILE )
     {
-        double tempFeature;
-        readFeatureList.clear();
 
-        for( int i = 0 ; i < DIMENSIONS_IN_DATA ; ++i )
+        std::cout << "Parsing started.." << std::endl;
+
+        while(flag)
         {
-            if( EOF != scanf("%lf",&tempFeature))
-                readFeatureList.push_back(tempFeature);
-            else
+            double tempFeature;
+            readFeatureList.clear();
+
+            for( int i = 0 ; i < DIMENSIONS_IN_DATA ; ++i )
             {
-                flag = false;
-                break;
+                if( EOF != scanf("%lf",&tempFeature))
+                    readFeatureList.push_back(tempFeature);
+                else
+                {
+                    flag = false;
+                    break;
+                }
+            }
+
+            if( flag )
+            {
+                DataPoint<double> data(readFeatureList);
+                dataSet.pushDataPoint(data);
             }
         }
 
-        if( flag )
-        {
-            DataPoint<double> data(readFeatureList);
-            dataSet.pushDataPoint(data);
-        }
+        std::cout << "Parsing finished.." << std::endl;
+
+        std::cout << DIMENSIONS_IN_DATA << " dimensional data with " << dataSet.getDataPointsList().size() << " vectors." << std::endl ;
+
+        std::cout << "Randomizing data set.." << std::endl;
+        dataSet.randomRearrangeDataset();
+
+        std::cout << "Normalizing data set to commmon distribution.." << std::endl;
+        dataSet.normalizeDataset();
+
+        std::cout << "Allocating memory and filling dissimilarity matrix.." << std::endl;
+        distanceMatrix.allocateAndFill(dataSet);
     }
 
-    std::cout << "Parsing finished.." << std::endl;
-
-    std::cout << DIMENSIONS_IN_DATA << " dimensional data with " << dataSet.getDataPointsList().size() << " vectors." << std::endl ;
-
-    std::cout << "Randomizing data set.." << std::endl;
-    dataSet.randomRearrangeDataset();
-
-    std::cout << "Normalizing data set to commmon distribution.." << std::endl;
-    dataSet.normalizeDataset();
-
-    std::cout << "Allocating memory and filling dissimilarity matrix.." << std::endl;
-    distanceMatrix.allocateAndFill(dataSet);
+    else
+    {
+        std::cout << "Parsing started.." << std::endl;
+        std::cout << "Allocating memory and filling dissimilarity matrix.." << std::endl;
+        distanceMatrix.allocateAndFill();
+        std::cout << "Parsing finished.." << std::endl;
+    }
 
     std::cout << "Normalizing dissimilarity matrix.." << std::endl;
     distanceMatrix.normalizeMatrix();

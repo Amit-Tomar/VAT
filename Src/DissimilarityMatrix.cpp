@@ -137,6 +137,8 @@ void DissimilarityMatrix::applyVAT()
     }
 }
 
+// Allocate memory based on the data feature vectors read from file and
+// calcualte the dissimilarities
 void DissimilarityMatrix::allocateAndFill(DataSet<double,double> dataSet)
 {
     dissimilarityMatrixSize = dataSet.getDataPointsList().size() ;
@@ -158,6 +160,28 @@ void DissimilarityMatrix::allocateAndFill(DataSet<double,double> dataSet)
             {
                 dissimilarityMatrix[i][j] = dataSet.getDistanceBetweenPoints(dataSet.getDataPointsList()[i], dataSet.getDataPointsList()[j]);
             }
+        }
+    }
+}
+
+
+// Directly read the dissimilarity matrix from file
+void DissimilarityMatrix::allocateAndFill()
+{
+    dissimilarityMatrixSize = DATA_SET_SIZE ;
+    dissimilarityMatrix = (double **) malloc(sizeof(double*)*DATA_SET_SIZE);
+
+    for( unsigned int i = 0 ; i < DATA_SET_SIZE ; ++i)
+    {
+        dissimilarityMatrix[i] = (double *) malloc(sizeof(double) * DATA_SET_SIZE );
+    }
+
+    // Fill in the dissimilarity matrix
+    for( unsigned int i = 0 ; i < DATA_SET_SIZE ; ++i)
+    {
+        for( unsigned int j = 0 ; j < DATA_SET_SIZE ; ++j)
+        {
+             scanf("%lf",&dissimilarityMatrix[i][j]);
         }
     }
 }

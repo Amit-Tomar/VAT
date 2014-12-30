@@ -15,13 +15,10 @@
 #include <QMouseEvent>
 #include <vector>
 #include <cmath>
-#include <QSlider>
-#include <QHBoxLayout>
-#include <DataSet.hpp>
-#include <DissimilarityMatrix.h>
 
-extern int DIMENSIONS_IN_DATA ;
-
+#include "DataSet.hpp"
+#include "DissimilarityMatrix.h"
+#include "GlobalSettingsData.h"
 
 class OpenGlSurface : public QGLWidget
 {

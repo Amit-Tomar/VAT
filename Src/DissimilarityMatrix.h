@@ -5,7 +5,10 @@
 #include <vector>
 #include <cmath>
 #include <algorithm>
-#include <DataSet.hpp>
+#include <cstdio>
+
+#include "DataSet.hpp"
+#include "GlobalSettingsData.h"
 
 class DissimilarityMatrix
 {
@@ -21,6 +24,7 @@ public:
     void fillMaxInfo();
     void applyVAT();
     void allocateAndFill(DataSet<double,double>);
+    void allocateAndFill();
 
 private:
 
