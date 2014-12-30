@@ -28,13 +28,32 @@ public:
 
     dataPointFeatureType getFeatureI(int dimension)
     {
-        if( dimension < featureVector.size() )
+        if( dimension < featureVector.size() && dimension >= 0)
             return featureVector[dimension];
         else
         {
             std::cerr << "Invalid dimension for feature vector" << std::endl ;
             return (dataPointFeatureType)NULL;
         }
+    }
+
+    dataPointFeatureType setFeatureI(int dimension , dataPointFeatureType feature)
+    {
+        if( dimension < featureVector.size() && dimension >= 0)
+        {
+            featureVector[dimension] = feature;
+        }
+
+        else
+        {
+            std::cerr << "Invalid dimension for feature vector" << std::endl ;
+            return (dataPointFeatureType)NULL;
+        }
+    }
+
+    long int totalFeatures()
+    {
+        return featureVector.size();
     }
 
 private:

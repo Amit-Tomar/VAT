@@ -20,6 +20,9 @@
 #include <DataSet.hpp>
 #include <DissimilarityMatrix.h>
 
+extern int DIMENSIONS_IN_DATA ;
+
+
 class OpenGlSurface : public QGLWidget
 {
     Q_OBJECT

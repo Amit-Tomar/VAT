@@ -9,6 +9,7 @@ DissimilarityMatrix::DissimilarityMatrix()
 void DissimilarityMatrix::normalizeMatrix()
 {
     double maxDistance = 0.0f;
+    double minDistance = 0.0f;
 
     // Find maximum distance
     for( unsigned int i = 0 ; i < dissimilarityMatrixSize ; ++i)
@@ -17,6 +18,8 @@ void DissimilarityMatrix::normalizeMatrix()
         {
             if( dissimilarityMatrix[i][j] > maxDistance )
                 maxDistance = dissimilarityMatrix[i][j];
+            if( dissimilarityMatrix[i][j] < minDistance )
+                minDistance = dissimilarityMatrix[i][j];
         }
     }
 
@@ -24,7 +27,7 @@ void DissimilarityMatrix::normalizeMatrix()
     {
         for( unsigned int j = 0 ; j < dissimilarityMatrixSize ; ++j)
         {
-                dissimilarityMatrix[i][j] = dissimilarityMatrix[i][j] / maxDistance;
+                dissimilarityMatrix[i][j] = (dissimilarityMatrix[i][j] - minDistance ) / (maxDistance - minDistance);
         }
     }
 }

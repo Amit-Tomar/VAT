@@ -8,7 +8,6 @@
 
 #include "OpenGlSurface.h"
 
-int DIMENSIONS_IN_DATA = 0;
 
 /*
  * Constructor
