@@ -17,10 +17,8 @@
 #include <cmath>
 #include <QSlider>
 #include <QHBoxLayout>
-#include <DataSet.h>
+#include <DataSet.hpp>
 #include <DissimilarityMatrix.h>
-
-#define DIMENSIONS_IN_DATA 13
 
 class OpenGlSurface : public QGLWidget
 {
@@ -56,6 +54,7 @@ private:
 
     bool drawVATAsRectangles;
     int renderingCircleSize;
+    int intensity;
 };
 
 #endif // OpenGlSurface_H

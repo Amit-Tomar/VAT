@@ -5,7 +5,7 @@
 #include <vector>
 #include <cmath>
 #include <algorithm>
-#include <DataSet.h>
+#include <DataSet.hpp>
 
 class DissimilarityMatrix
 {

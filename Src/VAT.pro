@@ -18,8 +18,9 @@ SOURCES += main.cpp\
 
 HEADERS  += OpenGlSurface.h \
     OpenGlSurface.h \
-    DataPoint.h \
-    DataSet.h \
-    DissimilarityMatrix.h
+    DissimilarityMatrix.h \
+    DataSet.hpp \
+    DataPoint.hpp \
+    Statistics.h
 
 FORMS +=
