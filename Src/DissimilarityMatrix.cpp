@@ -8,8 +8,8 @@ DissimilarityMatrix::DissimilarityMatrix()
 
 void DissimilarityMatrix::normalizeMatrix()
 {
-    double maxDistance = 0.0f;
-    double minDistance = 0.0f;
+    double maxDistance = -100000.0f;
+    double minDistance =  100000.0f;
 
     // Find maximum distance
     for( unsigned int i = 0 ; i < dissimilarityMatrixSize ; ++i)
@@ -21,7 +21,7 @@ void DissimilarityMatrix::normalizeMatrix()
             if( dissimilarityMatrix[i][j] < minDistance )
                 minDistance = dissimilarityMatrix[i][j];
         }
-    }
+    }    
 
     for( unsigned int i = 0 ; i < dissimilarityMatrixSize ; ++i)
     {
@@ -30,6 +30,21 @@ void DissimilarityMatrix::normalizeMatrix()
                 dissimilarityMatrix[i][j] = (dissimilarityMatrix[i][j] - minDistance ) / (maxDistance - minDistance);
         }
     }
+
+    maxDistance = -1.0f;
+    minDistance = 100.0f;
+
+    // Find maximum distance
+    for( unsigned int i = 0 ; i < dissimilarityMatrixSize ; ++i)
+    {
+        for( unsigned int j = 0 ; j < dissimilarityMatrixSize ; ++j)
+        {
+            if( dissimilarityMatrix[i][j] > maxDistance )
+                maxDistance = dissimilarityMatrix[i][j];
+            if( dissimilarityMatrix[i][j] < minDistance )
+                minDistance = dissimilarityMatrix[i][j];
+        }
+    }    
 }
 
 void DissimilarityMatrix::randomRearrangeMatrix()
@@ -90,18 +105,18 @@ void DissimilarityMatrix::applyVAT()
 
     while( 0 != vertices.size() )
     {
-        double minimumDistance = 1.0f;
+        double minimumDistance = 10.0f;
         unsigned int minimumDistanceVertex  = 0;
 
         // Apply VAT
         for( unsigned int i = 0 ; i < verticesChosen.size() ; ++i)
         {
             for( unsigned int j = 0 ; j < vertices.size() ; ++j)
-            {
+            {                
                 if( verticesChosen[i] != vertices[j] && dissimilarityMatrix[verticesChosen[i]][vertices[j]] < minimumDistance )
                 {
                     minimumDistance = dissimilarityMatrix[verticesChosen[i]][vertices[j]];
-                    minimumDistanceVertex = vertices[j] ;
+                    minimumDistanceVertex = vertices[j] ;                    
                 }
             }
         }
@@ -158,7 +173,7 @@ void DissimilarityMatrix::allocateAndFill(DataSet<double,double> dataSet)
                 dissimilarityMatrix[i][j] = 0.0;
             else
             {
-                dissimilarityMatrix[i][j] = dataSet.getDistanceBetweenPoints(dataSet.getDataPointsList()[i], dataSet.getDataPointsList()[j]);
+                dissimilarityMatrix[i][j] = dataSet.getDistanceBetweenPoints(dataSet.getDataPointsList()[i], dataSet.getDataPointsList()[j],DISTANCE_FUNCTION_TYPE);
             }
         }
     }

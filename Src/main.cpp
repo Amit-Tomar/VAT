@@ -9,14 +9,14 @@
 #include "OpenGlSurface.h"
 #include <QApplication>
 #include <OpenGlSurface.h>
-
-extern int DIMENSIONS_IN_DATA ;
+#include "GlobalSettingsData.h"
 
 int main(int argc, char *argv[])
 {
 
-    std::cout << "Usage: ./VAT [F|D] [Dimensions|DataSetSize] < InputFile" << std::endl ;
-    std::cout << "F: Feature vector file, D: Dissimilarity file\n\n\n" << std::endl;
+    std::cout << "Usage: ./VAT [F|D] [Dimensions|DataSetSize] [DissimilarityType] < InputFile" << std::endl ;
+    std::cout << "F: Feature vector file, D: Dissimilarity file" << std::endl;
+    std::cout << "E: Euclidean, O: Cosine, J: Jaccard, M: Manhattan, C: Canberra, B: Mahalanobis, P: Pearson \n\n" << std::endl;
 
     if (argc < 3)
     {
@@ -37,6 +37,45 @@ int main(int argc, char *argv[])
     else
     {
         std::cerr << "Invalid file input type" << std::endl ;
+    }
+
+    if( 0 == strcmp( "E", argv[3] ) || 0 == strcmp( "e", argv[3] ) )
+    {
+        DISTANCE_FUNCTION_TYPE = e_euclidean;
+    }
+    else if( 0 == strcmp( "O", argv[3] ) || 0 == strcmp( "o", argv[3] ) )
+    {
+        DISTANCE_FUNCTION_TYPE = e_cosine;
+    }
+
+    else if( 0 == strcmp( "J", argv[3] ) || 0 == strcmp( "j", argv[3] ) )
+    {
+        DISTANCE_FUNCTION_TYPE = e_jaccard;
+    }
+
+    else if( 0 == strcmp( "M", argv[3] ) || 0 == strcmp( "m", argv[3] ) )
+    {
+        DISTANCE_FUNCTION_TYPE = e_manhattan;
+    }
+
+    else if( 0 == strcmp( "C", argv[3] ) || 0 == strcmp( "c", argv[3] ) )
+    {
+        DISTANCE_FUNCTION_TYPE = e_canberra;
+    }
+
+    else if( 0 == strcmp( "B", argv[3] ) || 0 == strcmp( "B", argv[3] ) )
+    {
+        DISTANCE_FUNCTION_TYPE = e_mahalanobis;
+    }
+
+    else if( 0 == strcmp( "P", argv[3] ) || 0 == strcmp( "p", argv[3] ) )
+    {
+        DISTANCE_FUNCTION_TYPE = e_pearson;
+    }
+
+    else
+    {
+        std::cerr << "Invalid distance function type" << std::endl ;
     }
 
     QApplication a(argc, argv);

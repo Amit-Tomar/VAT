@@ -6,7 +6,7 @@
 #include <cmath>
 #include "DataPoint.hpp"
 #include "Statistics.h"
-
+#include "GlobalSettingsData.h"
 
 template< typename dataPointFeatureType, typename dataPointDistanceType>
 
@@ -16,18 +16,99 @@ public:
     DataSet(){}
     virtual ~ DataSet() {}    
 
-    virtual dataPointDistanceType getDistanceBetweenPoints(DataPoint <dataPointFeatureType> point1,DataPoint <dataPointFeatureType> point2)
+    virtual dataPointDistanceType getDistanceBetweenPoints(DataPoint <dataPointFeatureType> point1,DataPoint <dataPointFeatureType> point2, dissimilarityFunction functionType )
     {
-        // Eucledian
-
         dataPointDistanceType distance = 0 ;
 
-        for( int i = 0 ; i < point1.getFeatureVector().size() ; ++i )
+        if( e_euclidean == functionType )
         {
-            distance += pow ( point1.getFeatureI(i)-point2.getFeatureI(i), 2 );
+            for( int i = 0 ; i < point1.getFeatureVector().size() ; ++i )
+            {
+                distance += pow ( point1.getFeatureI(i)-point2.getFeatureI(i), 2 );
+            }
+
+            return (dataPointDistanceType) sqrt(distance);
         }
 
-        return (dataPointDistanceType) sqrt(distance);
+        else if( e_cosine == functionType )
+        {
+            // Cos Theta = A.B / |A| |B|
+
+              dataPointDistanceType dotProduct    = 0.0;
+              dataPointDistanceType vec1Magnitude = 0.0;
+              dataPointDistanceType vec2Magnitude = 0.0;
+
+              for (int i = 0; i < point1.getFeatureVector().size(); i++)
+              {
+                  dotProduct    += (point1.getFeatureI(i) * point2.getFeatureI(i)) ;
+                  vec1Magnitude += (point1.getFeatureI(i) * point1.getFeatureI(i));
+                  vec2Magnitude += (point2.getFeatureI(i) * point2.getFeatureI(i));
+              }
+
+              dataPointDistanceType cosineDistance =  (dotProduct / (sqrt(vec1Magnitude) * sqrt(vec2Magnitude)));
+              cosineDistance = acos(cosineDistance) * 180.0 / 3.14159265 ;
+              return cosineDistance;
+        }
+
+        else if( e_jaccard == functionType )
+        {
+            // Jacc coeff. = A.B / (|A|^2 |B|^2 - A.B)
+
+              dataPointDistanceType dotProduct    = 0.0;
+              dataPointDistanceType vec1MagnitudeSquare = 0.0;
+              dataPointDistanceType vec2MagnitudeSquare = 0.0;
+
+              for (int i = 0; i < point1.getFeatureVector().size(); i++)
+              {
+                  dotProduct    += (point1.getFeatureI(i) * point2.getFeatureI(i)) ;
+                  vec1MagnitudeSquare += (point1.getFeatureI(i) * point1.getFeatureI(i) );
+                  vec2MagnitudeSquare += (point2.getFeatureI(i) * point2.getFeatureI(i) );
+              }
+
+              return (dotProduct / ( vec1MagnitudeSquare + vec2MagnitudeSquare - dotProduct ));;
+        }
+
+        else if( e_manhattan == functionType )
+        {
+              dataPointDistanceType manhattanDistance = 0.0;
+
+              for (int i = 0; i < point1.getFeatureVector().size(); i++)
+              {
+                  manhattanDistance += abs(point1.getFeatureI(i) - point2.getFeatureI(i)) ;
+              }
+
+              return manhattanDistance;
+        }
+
+        else if( e_canberra == functionType )
+        {
+              dataPointDistanceType canberraDistance = 0.0;
+
+              for (int i = 0; i < point1.getFeatureVector().size(); i++)
+              {
+                  if( 0 == ( abs(point1.getFeatureI(i)) + abs(point2.getFeatureI(i)) ) )
+                      canberraDistance += 0;
+                  else
+                      canberraDistance += (abs(point1.getFeatureI(i) - point2.getFeatureI(i)) / ( abs(point1.getFeatureI(i)) + abs(point2.getFeatureI(i)) )) ;
+              }
+
+              return canberraDistance;
+        }
+
+        else if( e_mahalanobis == functionType )
+        {
+            std::cerr << "To be done" << std::endl ;
+        }
+
+        else if( e_pearson == functionType )
+        {
+            std::cerr << "To be done" << std::endl ;
+        }
+
+        else
+        {
+            std::cerr << "Invalid dissimilarity function type" << std::endl ;
+        }
     }
 
     std::vector <DataPoint<dataPointFeatureType> > & getDataPointsList()

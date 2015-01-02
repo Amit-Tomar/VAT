@@ -26,7 +26,8 @@ OpenGlSurface::OpenGlSurface(int x , int y, int width, int height, QGLWidget *pa
     setGeometry(x,y,width,height);
     initializeGL();
     drawVATAsRectangles = true ;
-    renderingCircleSize = 5;
+    renderingCircleSize = 1;
+    intensity = 1;
 
     bool flag = true;
     std::vector<double> readFeatureList;
@@ -95,8 +96,8 @@ OpenGlSurface::OpenGlSurface(int x , int y, int width, int height, QGLWidget *pa
 
 OpenGlSurface::~OpenGlSurface()
 {
-}
 
+}
 
 void OpenGlSurface::drawRectangles(std::vector<std::pair<GLdouble, GLdouble> > pointsList , GLdouble red, GLdouble green, GLdouble blue, GLdouble thickness)
 {
@@ -108,7 +109,9 @@ void OpenGlSurface::drawRectangles(std::vector<std::pair<GLdouble, GLdouble> > p
                  glEnable(GL_BLEND);
                  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-                 glColor4f(0, 0, 0, 1 - distanceMatrix.getValue(i,j) );
+                 glColor4f(0,0,0, 1-distanceMatrix.getValue(i,j) * intensity );
+                 //glColor4f(1-distanceMatrix.getValue(i,j) * intensity,.1,.1, 1 );
+                 //glColor4f(1-distanceMatrix.getValue(i,j),0,0, 1-distanceMatrix.getValue(i,j) * intensity );
 
                  double squareWidth = 1 / (double)distanceMatrix.getSize() ;
 
@@ -122,7 +125,7 @@ void OpenGlSurface::drawRectangles(std::vector<std::pair<GLdouble, GLdouble> > p
                      glBegin(GL_POINTS);
                         glVertex3f(i*squareWidth, j*squareWidth,0);
                      glEnd();
-                 }
+                 }                 
              }
         }
 
@@ -140,7 +143,7 @@ void OpenGlSurface::saveFrameBuffer()
  */
 void OpenGlSurface::initializeGL()
 {
-    glClearColor(1,1,1,1);
+    glClearColor(1,1,1,1); // Background Color
     glMatrixMode(GL_PROJECTION);
     glEnable(GL_POINT_SMOOTH);
     glLoadIdentity();
@@ -207,6 +210,16 @@ void OpenGlSurface::keyPressEvent(QKeyEvent * keyevent)
     else if( keyevent->key() == Qt::Key_Down )
     {
         renderingCircleSize -- ;
+    }
+
+    else if( keyevent->key() == Qt::Key_U )
+    {
+        intensity += 2 ;
+    }
+
+    else if( keyevent->key() == Qt::Key_D )
+    {
+        intensity -= 2 ;
     }
 }
 
