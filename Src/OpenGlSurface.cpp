@@ -67,7 +67,7 @@ OpenGlSurface::OpenGlSurface(int x , int y, int width, int height, QGLWidget *pa
         std::cout << "Randomizing data set.." << std::endl;
         dataSet.randomRearrangeDataset();
 
-        std::cout << "Normalizing data set to commmon distribution.." << std::endl;
+        std::cout << "Normalizing data set to common distribution.." << std::endl;
         dataSet.normalizeDataset();
 
         std::cout << "Allocating memory and filling dissimilarity matrix.." << std::endl;
@@ -214,13 +214,25 @@ void OpenGlSurface::keyPressEvent(QKeyEvent * keyevent)
 
     else if( keyevent->key() == Qt::Key_U )
     {
-        intensity += 2 ;
+        intensity += 1.5 ;
     }
 
     else if( keyevent->key() == Qt::Key_D )
     {
-        intensity -= 2 ;
+        intensity -= 1.5 ;
     }
+
+    else if( keyevent->key() == Qt::Key_I )
+    {
+        for( int i = 0 ; i < distanceMatrix.getSize() ; ++i )
+            for( int j = 0 ; j < distanceMatrix.getSize() ; ++j )
+                if( distanceMatrix.getValue(i,j) > .5 )
+                    distanceMatrix.setValue(i,j,distanceMatrix.getValue(i,j)+.05);
+                else
+                    distanceMatrix.setValue(i,j,distanceMatrix.getValue(i,j)-.05);
+    }
+
+
 }
 
 /*

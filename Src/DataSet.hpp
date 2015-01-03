@@ -100,9 +100,34 @@ public:
             std::cerr << "To be done" << std::endl ;
         }
 
+        // http://en.wikipedia.org/wiki/Pearson_product-moment_correlation_coefficient#Pearson.E2.80.99s_distance
         else if( e_pearson == functionType )
         {
-            std::cerr << "To be done" << std::endl ;
+            dataPointDistanceType pearsonCoefficient = 0.0;
+            dataPointDistanceType numerator = 0.0, denominator1 = 0.0, denominator2 = 0.0;
+
+            for (int i = 0; i < point1.getFeatureVector().size(); i++)
+            {
+                numerator += (point1.getFeatureVector()[i] - dataStatisticList[i].mean)*( point2.getFeatureVector()[i] - dataStatisticList[i].mean );
+            }
+
+            for (int i = 0; i < point1.getFeatureVector().size(); i++)
+            {
+                denominator1  += (point1.getFeatureVector()[i] - dataStatisticList[i].mean)*( point1.getFeatureVector()[i] - dataStatisticList[i].mean );
+            }
+
+            denominator1 = sqrt(denominator1);
+
+            for (int i = 0; i < point1.getFeatureVector().size(); i++)
+            {
+                denominator2  += (point2.getFeatureVector()[i] - dataStatisticList[i].mean)*( point2.getFeatureVector()[i] - dataStatisticList[i].mean );
+            }
+
+            denominator2 = sqrt(denominator2);
+
+            pearsonCoefficient = numerator / (denominator1 * denominator2);
+
+            return 1-pearsonCoefficient ;
         }
 
         else
@@ -135,6 +160,7 @@ public:
 
     void normalizeDataset()
     {        
+        std::cout << "Stats calculated" << std::endl ;
         evaluateStats();
 
         for( int i = 0 ; i < dataPointsList.size() ; ++i )

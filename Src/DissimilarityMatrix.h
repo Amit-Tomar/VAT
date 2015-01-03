@@ -20,6 +20,7 @@ public:
     void setSize(int size) { dissimilarityMatrixSize = size ; }
     int  getSize() { return dissimilarityMatrixSize; }
     double getValue(int i, int j) { return dissimilarityMatrix[i][j] ; }
+    void setValue(int i, int j,double value) { dissimilarityMatrix[i][j] = value ; }
     void printMatrix();
     void fillMaxInfo();
     void applyVAT();
