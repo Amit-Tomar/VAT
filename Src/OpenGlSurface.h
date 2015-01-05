@@ -54,7 +54,7 @@ private:
 
     bool drawVATAsRectangles;
     int renderingCircleSize;
-    int intensity;
+    double intensity;
 };
 
 #endif // OpenGlSurface_H

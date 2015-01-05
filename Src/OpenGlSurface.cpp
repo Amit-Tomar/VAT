@@ -68,7 +68,7 @@ OpenGlSurface::OpenGlSurface(int x , int y, int width, int height, QGLWidget *pa
         dataSet.randomRearrangeDataset();
 
         std::cout << "Normalizing data set to common distribution.." << std::endl;
-        dataSet.normalizeDataset();
+        //dataSet.normalizeDataset();
 
         std::cout << "Allocating memory and filling dissimilarity matrix.." << std::endl;
         distanceMatrix.allocateAndFill(dataSet);
@@ -109,9 +109,14 @@ void OpenGlSurface::drawRectangles(std::vector<std::pair<GLdouble, GLdouble> > p
                  glEnable(GL_BLEND);
                  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+                 // Black
                  glColor4f(0,0,0, 1-distanceMatrix.getValue(i,j) * intensity );
-                 //glColor4f(1-distanceMatrix.getValue(i,j) * intensity,.1,.1, 1 );
-                 //glColor4f(1-distanceMatrix.getValue(i,j),0,0, 1-distanceMatrix.getValue(i,j) * intensity );
+
+                 // Violet - Highest intensity
+                 //glColor4f((double)159/255,0,1, 1-distanceMatrix.getValue(i,j) * intensity );
+
+                 // Yellow
+                 //glColor4f(1,1,0, 1-distanceMatrix.getValue(i,j) * intensity );
 
                  double squareWidth = 1 / (double)distanceMatrix.getSize() ;
 
@@ -134,7 +139,7 @@ void OpenGlSurface::drawRectangles(std::vector<std::pair<GLdouble, GLdouble> > p
 
 void OpenGlSurface::saveFrameBuffer()
 {
-    this->grabFrameBuffer().save("../Outputs/output.png");
+    this->grabFrameBuffer().save("../Outputs/VAT.png");
 }
 
 
