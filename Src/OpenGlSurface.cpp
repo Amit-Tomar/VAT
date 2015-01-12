@@ -68,7 +68,7 @@ OpenGlSurface::OpenGlSurface(int x , int y, int width, int height, QGLWidget *pa
         dataSet.randomRearrangeDataset();
 
         std::cout << "Normalizing data set to common distribution.." << std::endl;
-        //dataSet.normalizeDataset();
+        dataSet.normalizeDataset();
 
         std::cout << "Allocating memory and filling dissimilarity matrix.." << std::endl;
         distanceMatrix.allocateAndFill(dataSet);
@@ -101,40 +101,114 @@ OpenGlSurface::~OpenGlSurface()
 
 void OpenGlSurface::drawRectangles(std::vector<std::pair<GLdouble, GLdouble> > pointsList , GLdouble red, GLdouble green, GLdouble blue, GLdouble thickness)
 {
-        for ( unsigned int  i = 0; i < distanceMatrix.getSize(); ++i)
-        {
-             for ( unsigned int  j = 0; j < distanceMatrix.getSize(); ++j)
+    for ( unsigned int  i = 0; i < distanceMatrix.getSize(); ++i)
+    {
+         for ( unsigned int  j = 0; j < distanceMatrix.getSize(); ++j)
+         {
+             // Enable blending for alpha component of glcolor to work properly
+             glEnable(GL_BLEND);
+             glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+             double dissimilarityValue = 1-distanceMatrix.getValue(i,j);
+             double red, green, blue;
+
+             switch ( COLOR_MAP_TYPE )
              {
-                 // Enable blending for alpha component of glcolor to work properly
-                 glEnable(GL_BLEND);
-                 glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+                case e_blackNwhite :
 
-                 // Black
-                 glColor4f(0,0,0, 1-distanceMatrix.getValue(i,j) * intensity );
+                    dissimilarityValue = 1 -dissimilarityValue ;
+                    red   = dissimilarityValue ;
+                    green = dissimilarityValue ;
+                    blue  = dissimilarityValue ;
+                    break;
 
-                 // Violet - Highest intensity
-                 //glColor4f((double)159/255,0,1, 1-distanceMatrix.getValue(i,j) * intensity );
+                case e_rgbRainbow : // 5-Color Heatmap Blue|Cyan|Green|Yellow|Red
 
-                 // Yellow
-                 //glColor4f(1,1,0, 1-distanceMatrix.getValue(i,j) * intensity );
 
-                 double squareWidth = 1 / (double)distanceMatrix.getSize() ;
+                    // RGB Rainbow
+                    if( dissimilarityValue < .25 ) // Blue(0,0,1) to Cyan(0,1,1)
+                    {
+                        red   = 0.0 ;
+                        green = dissimilarityValue ;
+                        blue  = 1.0 ;
+                    }
 
-                 if( drawVATAsRectangles )
-                    glRectf(i*squareWidth, j*squareWidth, (i+1)*squareWidth, (j+1)*squareWidth);
-                 else
-                 {
-                     glEnable(GL_POINT_SMOOTH);
-                     glHint(GL_POINT_SMOOTH_HINT, GL_NICEST);
-                     glPointSize(renderingCircleSize);
-                     glBegin(GL_POINTS);
-                        glVertex3f(i*squareWidth, j*squareWidth,0);
-                     glEnd();
-                 }                 
+                    else if( dissimilarityValue < .5 ) // Cyan(0,1,1) to  Green(0,1,0)
+                    {
+                        red   = 0.0 ;
+                        green = 1.0 ;
+                        blue  = 1 - dissimilarityValue ;
+                    }
+
+                    else if( dissimilarityValue < .75 ) // Green(0,1,0) to Yellow(1,1,0)
+                    {
+                        red   = dissimilarityValue;
+                        green = 1 ;
+                        blue  = 0 ;
+                    }
+
+                    else // Yellow(1,1,0) to Red(1,0,0)
+                    {
+                        red   = 1 ;
+                        green = 1 - dissimilarityValue ;
+                        blue  = 0 ;
+                    }
+
+                    break;
+
+                case e_diverging_BLUE_RED : // Cold To Warm
+
+                    red   = ((.706-.230) * dissimilarityValue)+.230 ;
+                    green = ((.016-.299) * dissimilarityValue)+.299 ;
+                    blue  = ((.150-.754) * dissimilarityValue)+.754 ;
+                    break;
+
+                case e_diverging_GREEN_RED :
+
+                     red   = ((.758-.085) * dissimilarityValue)+.085 ;
+                     green = ((.214-.532) * dissimilarityValue)+.532 ;
+                     blue  = ((.233-.201) * dissimilarityValue)+.201 ;
+                     break;
+
+                case e_diverging_PURPLE_ORANGE :
+
+                     red   = ((.759-.436) * dissimilarityValue)+.436 ;
+                     green = ((.334-.308) * dissimilarityValue)+.308 ;
+                     blue  = ((.046-.631) * dissimilarityValue)+.631 ;
+                     break;
+
+
+             case e_diverging_YELLOW_BLACK:
+
+                     red   = dissimilarityValue ;
+                     green = dissimilarityValue ;
+                     blue  = 0 ;
+                     break;
+
+             default:
+
+                 std::cerr << "Invalid color tempelete" << std::endl ;
              }
-        }
 
-        update();
+             glColor4f(red,green,blue, 1 );
+
+             double squareWidth = 1 / (double)distanceMatrix.getSize() ;
+
+             if( drawVATAsRectangles )
+                glRectf(i*squareWidth, j*squareWidth, (i+1)*squareWidth, (j+1)*squareWidth);
+             else
+             {
+                 glEnable(GL_POINT_SMOOTH);
+                 glHint(GL_POINT_SMOOTH_HINT, GL_NICEST);
+                 glPointSize(renderingCircleSize);
+                 glBegin(GL_POINTS);
+                    glVertex3f(i*squareWidth, j*squareWidth,0);
+                 glEnd();
+             }
+         }
+    }
+
+    update();
 }
 
 void OpenGlSurface::saveFrameBuffer()

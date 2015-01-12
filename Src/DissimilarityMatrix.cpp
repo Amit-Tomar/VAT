@@ -29,22 +29,7 @@ void DissimilarityMatrix::normalizeMatrix()
         {
                 dissimilarityMatrix[i][j] = (dissimilarityMatrix[i][j] - minDistance ) / (maxDistance - minDistance);
         }
-    }
-
-    maxDistance = -1.0f;
-    minDistance = 100.0f;
-
-    // Find maximum distance
-    for( unsigned int i = 0 ; i < dissimilarityMatrixSize ; ++i)
-    {
-        for( unsigned int j = 0 ; j < dissimilarityMatrixSize ; ++j)
-        {
-            if( dissimilarityMatrix[i][j] > maxDistance )
-                maxDistance = dissimilarityMatrix[i][j];
-            if( dissimilarityMatrix[i][j] < minDistance )
-                minDistance = dissimilarityMatrix[i][j];
-        }
-    }    
+    }      
 }
 
 void DissimilarityMatrix::randomRearrangeMatrix()
