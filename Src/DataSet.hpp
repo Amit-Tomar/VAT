@@ -144,6 +144,7 @@ public:
     void pushDataPoint(DataPoint<dataPointFeatureType> data)
     {
         dataPointsList.push_back(data);
+        dataPointOrderList.push_back(dataPointOrderList.size());
     }
 
     void randomRearrangeDataset()
@@ -155,6 +156,10 @@ public:
                 DataPoint<dataPointFeatureType> temp = dataPointsList[randomDatavaluePosition];
                 dataPointsList[randomDatavaluePosition] = dataPointsList[i];
                 dataPointsList[i] = temp;
+
+                unsigned int tempdataOrderPosn = dataPointOrderList[randomDatavaluePosition];
+                dataPointOrderList[randomDatavaluePosition] = dataPointOrderList[i];
+                dataPointOrderList[i] = tempdataOrderPosn;
             }
     }
 
@@ -207,8 +212,7 @@ private:
 
     std::vector <DataPoint<dataPointFeatureType> > dataPointsList;
     std::vector <Stats> dataStatisticList;
+    std::vector <unsigned int> dataPointOrderList;
 };
-
-
 
 #endif // DATASET_H

@@ -26,3 +26,5 @@ HEADERS  += OpenGlSurface.h \
     GlobalSettingsData.h
 
 FORMS +=
+
+LIBS += -lGLU

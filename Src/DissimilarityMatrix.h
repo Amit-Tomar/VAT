@@ -26,6 +26,7 @@ public:
     void applyVAT();
     void allocateAndFill(DataSet<double,double>);
     void allocateAndFill();
+    void printSeriationOrder();
 
 private:
 
@@ -33,6 +34,7 @@ private:
     unsigned int dissimilarityMatrixSize;
     double maximumDistance;
     int maximumDistanceIndex ;
+    std::vector<unsigned int> verticesChosen;
 
 };
 

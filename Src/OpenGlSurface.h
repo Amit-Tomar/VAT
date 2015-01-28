@@ -15,7 +15,7 @@
 #include <QMouseEvent>
 #include <vector>
 #include <cmath>
-
+#include <GL/glu.h>
 #include "DataSet.hpp"
 #include "DissimilarityMatrix.h"
 #include "GlobalSettingsData.h"
@@ -27,8 +27,6 @@ class OpenGlSurface : public QGLWidget
 public:
     OpenGlSurface(int, int , int , int ,QGLWidget *parent = 0);
     ~OpenGlSurface();
-
-    void drawRectangles (std::vector<std::pair<GLdouble,GLdouble> >, GLdouble,GLdouble,GLdouble,GLdouble );
 
 public slots:
 

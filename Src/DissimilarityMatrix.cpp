@@ -78,7 +78,7 @@ void DissimilarityMatrix::fillMaxInfo()
 
 void DissimilarityMatrix::applyVAT()
 {
-    std::vector<unsigned int> vertices, verticesChosen ;
+    std::vector<unsigned int> vertices ;
 
     for(unsigned int i = 0 ; i < dissimilarityMatrixSize ; ++ i )
     {
@@ -184,4 +184,14 @@ void DissimilarityMatrix::allocateAndFill()
              scanf("%lf",&dissimilarityMatrix[i][j]);
         }
     }
+}
+
+void DissimilarityMatrix::printSeriationOrder()
+{
+    std::cout << "Seriated order of clustering is : " ;
+
+    for( int i = 0 ; i < verticesChosen.size() ; ++ i )
+        std::cout << verticesChosen[i]+1 << " " ;
+
+    std::cout << "\n" << std::endl ;
 }
