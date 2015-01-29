@@ -25,7 +25,7 @@ OpenGlSurface::OpenGlSurface(int x , int y, int width, int height, QGLWidget *pa
     setFormat(QGLFormat(QGL::DoubleBuffer | QGL::DepthBuffer));
     setGeometry(x,y,width,height);
     initializeGL();
-    drawVATAsRectangles = true ;
+    drawVATAsRectangles = false ;
     renderingCircleSize = 1;
     intensity = 1;
 
@@ -115,6 +115,25 @@ void OpenGlSurface::initializeGL()
     glEnable(GL_POINT_SMOOTH);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glEnable(GL_NORMALIZE); // Automatically normalizes the normal vectors
+
+    if( !drawVATAsRectangles )
+    {
+       GLfloat mat_specular[] = { 1.0, 1.0, 1.0, 1.0 };
+       GLfloat mat_shininess[] = { 50.0 };
+       GLfloat light_position[] = { 0.5, 0.5, 1.0, 0.0 };
+       glClearColor (0.0, 0.0, 0.0, 0.0);
+       glShadeModel (GL_SMOOTH);
+       glEnable(GL_COLOR_MATERIAL);
+
+       glMaterialfv(GL_FRONT, GL_SPECULAR, mat_specular);
+       glMaterialfv(GL_FRONT, GL_SHININESS, mat_shininess);
+       glLightfv(GL_LIGHT0, GL_POSITION, light_position);
+
+       glEnable(GL_LIGHTING);
+       glEnable(GL_LIGHT0);
+       glEnable(GL_DEPTH_TEST);
+    }
 }
 
 /*
@@ -138,9 +157,10 @@ void OpenGlSurface::resizeGL(int width, int height)
     viewPortWidth = width ;
     viewPortHeight = height;
     glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-    glOrtho(0,1,1,0,0,1);
-    //gluPerspective(50,width/height,1,100);
+    glLoadIdentity();    
+
+    drawVATAsRectangles ? glOrtho(0,1,1,0,0,100) : gluPerspective(50,width/height,1,100);
+
     glMatrixMode(GL_MODELVIEW);
 }
 
@@ -149,14 +169,29 @@ void OpenGlSurface::resizeGL(int width, int height)
  *
  * @param  event Pointer to the event object containing all mouse event related information.
  */
-void OpenGlSurface::mousePressEvent(QMouseEvent *event)
+void OpenGlSurface::mousePressEvent(QMouseEvent *mouseEvent)
 {
     saveFrameBuffer();
+    lastPos = mouseEvent->pos();
+}
 
-    std::pair<GLdouble,GLdouble> pointClicked( (event->x()) / (double) viewPortWidth , (viewPortHeight-event->y()) / (double)viewPortHeight );
-    controlPointsList.push_back(pointClicked);
 
-    update();
+void OpenGlSurface::mouseMoveEvent(QMouseEvent *mouseEvent)
+{
+         int dx = mouseEvent->x() - lastPos.x();
+         int dy = mouseEvent->y() - lastPos.y();
+
+         if (mouseEvent->buttons() & Qt::LeftButton) {
+
+             setXRotation(sceneXRot + 8 * dy);
+             setYRotation(sceneYRot + 8 * dx);
+
+         } else if (mouseEvent->buttons() & Qt::RightButton) {
+
+             setXRotation( sceneXRot + 8 * dy );
+             setZRotation( sceneZRot + 8 * dx );
+         }
+         lastPos = mouseEvent->pos();
 }
 
 void OpenGlSurface::keyPressEvent(QKeyEvent * keyevent)
@@ -205,6 +240,19 @@ void OpenGlSurface::keyPressEvent(QKeyEvent * keyevent)
 void OpenGlSurface::draw()
 {
     glLoadIdentity();
+
+    if( !drawVATAsRectangles )
+    {
+        // Re-position Camera
+        gluLookAt(0,1.5,1.5,0,0,0,0,1,0);
+
+        glRotatef(sceneXRot / 16.0, 1.0, 0.0, 0.0);
+        glRotatef(sceneYRot / 16.0, 0.0, 1.0, 0.0);
+        glRotatef(sceneZRot / 16.0, 0.0, 0.0, 1.0);
+
+        glRotatef(90, 0, 0 ,1);
+        glTranslatef(-.5,-.5,0);
+    }
 
     for ( unsigned int  i = 0; i < distanceMatrix.getSize(); ++i)
     {
@@ -312,7 +360,6 @@ void OpenGlSurface::draw()
              if( drawVATAsRectangles )
              {
                  // Height Mapping
-
 #if 0
                  glBegin(GL_POINTS);
                     glVertex3f(i*squareWidth, j*squareWidth,dissimilarityValue);
@@ -332,15 +379,88 @@ void OpenGlSurface::draw()
 
              else
              {
+                 if( i == distanceMatrix.getSize()-1 || j == distanceMatrix.getSize()-1  )
+                     continue;
+
                  glEnable(GL_POINT_SMOOTH);
                  glHint(GL_POINT_SMOOTH_HINT, GL_NICEST);
                  glPointSize(renderingCircleSize);
-                 glBegin(GL_POINTS);
-                    glVertex3f(i*squareWidth, j*squareWidth,dissimilarityValue);
+
+                 float vector1[3], vector2[3];
+                 vector1[0] = i*squareWidth - (i+1)*squareWidth;
+                 vector1[1] = 0.0f;
+                 vector1[2] = distanceMatrix.getValue(i,j) - distanceMatrix.getValue(i+1,j);
+
+                 vector2[0] = 0.0f;
+                 vector2[1] = j*squareWidth - (j+1)*squareWidth;
+                 vector2[2] = distanceMatrix.getValue(i,j) - distanceMatrix.getValue(i,j+1);
+
+                 calculateNormal(vector1,vector2);
+
+                 glBegin(GL_QUADS);
+                    glVertex3f(i*squareWidth, j*squareWidth,distanceMatrix.getValue(i,j));
+                    glVertex3f(i*squareWidth, (j+1)*squareWidth,distanceMatrix.getValue(i,j+1));
+                    glVertex3f((i+1)*squareWidth, (j+1)*squareWidth,distanceMatrix.getValue(i+1,j+1));
+                    glVertex3f((i+1)*squareWidth, j*squareWidth,distanceMatrix.getValue(i+1,j));
                  glEnd();
              }
          }
     }
 
     update();
+}
+
+static void qNormalizeAngle(int &angle)
+{
+    while (angle < 0)
+        angle += 360 * 16;
+    while (angle > 360 * 16)
+        angle -= 360 * 16;
+}
+
+void OpenGlSurface::setXRotation(int angle)
+{
+    qNormalizeAngle(angle);
+    if (angle != sceneXRot) {
+        sceneXRot = angle;
+        updateGL();
+    }
+}
+
+void OpenGlSurface::setYRotation(int angle)
+{
+    qNormalizeAngle(angle);
+    if (angle != sceneYRot) {
+        sceneYRot = angle;
+        updateGL();
+    }
+}
+
+void OpenGlSurface::setZRotation(int angle)
+{
+    qNormalizeAngle(angle);
+    if (angle != sceneZRot) {
+        sceneZRot = angle;
+        updateGL();
+    }
+}
+
+void OpenGlSurface::calculateNormal(float * vector1, float * vector2)
+{
+    float vCross[3], normalizationValue;
+
+    // Cross product
+    vCross[0] = vector1[1] * vector2[2] - vector2[1] * vector1[2];
+    vCross[1] = vector2[0] * vector1[2] - vector1[0] * vector2[2];
+    vCross[2] = vector1[0] * vector2[1] - vector2[0] * vector1[1];
+
+    // Value to do normalization with
+    normalizationValue = sqrt( vCross[0]*vCross[0] + vCross[1]*vCross[1] + vCross[2]*vCross[2] );
+
+     float normal[3];
+     normal[0] = vCross[0]/normalizationValue;
+     normal[1] = vCross[1]/normalizationValue;
+     normal[2] = vCross[2]/normalizationValue;
+
+     glNormal3f(normal[0],normal[1],normal[2]);
 }

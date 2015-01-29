@@ -37,12 +37,23 @@ protected:
     void paintGL();
     void resizeGL(int,int);
     void mousePressEvent(QMouseEvent *event);
+    void mouseMoveEvent(QMouseEvent *event);
     void keyPressEvent(QKeyEvent*);
     void draw();
 
 private:
-    std::vector<std::pair<GLdouble,GLdouble> > controlPointsList;
-    std::vector<std::pair<GLdouble,GLdouble> > curvePointsList;
+
+    void setXRotation(int angle);
+    void setYRotation(int angle);
+    void setZRotation(int angle);
+
+    void calculateNormal(float *, float*);
+
+    float sceneXRot;
+    float sceneYRot;
+    float sceneZRot;
+
+    QPoint lastPos;
 
     int viewPortWidth;
     int viewPortHeight;
