@@ -36,10 +36,12 @@ protected:
     void initializeGL();
     void paintGL();
     void resizeGL(int,int);
+    void wheelEvent(QWheelEvent *);
     void mousePressEvent(QMouseEvent *event);
     void mouseMoveEvent(QMouseEvent *event);
     void keyPressEvent(QKeyEvent*);
     void draw();
+    void generateMesh();
 
 private:
 
@@ -52,6 +54,8 @@ private:
     float sceneXRot;
     float sceneYRot;
     float sceneZRot;
+
+    float sceneScale;
 
     QPoint lastPos;
 

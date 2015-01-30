@@ -25,9 +25,10 @@ OpenGlSurface::OpenGlSurface(int x , int y, int width, int height, QGLWidget *pa
     setFormat(QGLFormat(QGL::DoubleBuffer | QGL::DepthBuffer));
     setGeometry(x,y,width,height);
     initializeGL();
-    drawVATAsRectangles = false ;
+    drawVATAsRectangles = true ;
     renderingCircleSize = 1;
     intensity = 1;
+    sceneScale = 1;
 
     bool flag = true;
     std::vector<double> readFeatureList;
@@ -119,13 +120,20 @@ void OpenGlSurface::initializeGL()
 
     if( !drawVATAsRectangles )
     {
-       GLfloat mat_specular[] = { 1.0, 1.0, 1.0, 1.0 };
-       GLfloat mat_shininess[] = { 50.0 };
-       GLfloat light_position[] = { 0.5, 0.5, 1.0, 0.0 };
+       GLfloat mat_specular[]   = { .1,.1,.1, 1 };
+       GLfloat mat_shininess[]  = { 90.0 };
+       GLfloat light_position[] = { 0, 0, 5.0, 0.0 };
        glClearColor (0.0, 0.0, 0.0, 0.0);
+
+// Bright Light k
+#if 0
+       GLfloat global_ambient[] = { 0.5f, 0.5f, 0.5f, 1.0f };
+       glLightModelfv(GL_LIGHT_MODEL_AMBIENT, global_ambient);
+#endif
+
        glShadeModel (GL_SMOOTH);
        glEnable(GL_COLOR_MATERIAL);
-
+       glColorMaterial(GL_FRONT, GL_AMBIENT_AND_DIFFUSE);
        glMaterialfv(GL_FRONT, GL_SPECULAR, mat_specular);
        glMaterialfv(GL_FRONT, GL_SHININESS, mat_shininess);
        glLightfv(GL_LIGHT0, GL_POSITION, light_position);
@@ -162,6 +170,11 @@ void OpenGlSurface::resizeGL(int width, int height)
     drawVATAsRectangles ? glOrtho(0,1,1,0,0,100) : gluPerspective(50,width/height,1,100);
 
     glMatrixMode(GL_MODELVIEW);
+}
+
+void OpenGlSurface::wheelEvent(QWheelEvent * event)
+{
+    //if( event->Whee )
 }
 
 /*
@@ -245,6 +258,8 @@ void OpenGlSurface::draw()
     {
         // Re-position Camera
         gluLookAt(0,1.5,1.5,0,0,0,0,1,0);
+
+        glScalef(sceneScale,sceneScale,sceneScale);
 
         glRotatef(sceneXRot / 16.0, 1.0, 0.0, 0.0);
         glRotatef(sceneYRot / 16.0, 0.0, 1.0, 0.0);
@@ -397,17 +412,56 @@ void OpenGlSurface::draw()
 
                  calculateNormal(vector1,vector2);
 
-                 glBegin(GL_QUADS);
-                    glVertex3f(i*squareWidth, j*squareWidth,distanceMatrix.getValue(i,j));
-                    glVertex3f(i*squareWidth, (j+1)*squareWidth,distanceMatrix.getValue(i,j+1));
-                    glVertex3f((i+1)*squareWidth, (j+1)*squareWidth,distanceMatrix.getValue(i+1,j+1));
-                    glVertex3f((i+1)*squareWidth, j*squareWidth,distanceMatrix.getValue(i+1,j));
+                 glBegin(GL_TRIANGLES);
+                    glVertex3f(i*squareWidth, j*squareWidth,1-distanceMatrix.getValue(i,j));
+                    glVertex3f(i*squareWidth, (j+1)*squareWidth,1-distanceMatrix.getValue(i,j+1));
+                    glVertex3f((i+1)*squareWidth, (j+1)*squareWidth,1-distanceMatrix.getValue(i+1,j+1));
+
+                    // Generating Mesh Data
+
+                    std::cout << i*squareWidth << " " << j*squareWidth << " " << distanceMatrix.getValue(i,j) << std::endl ;
+                    std::cout << i*squareWidth << " " << (j+1)*squareWidth << " " << distanceMatrix.getValue(i,j+1) << std::endl ;
+                    std::cout << (i+1)*squareWidth << " " << (j+1)*squareWidth << " " << distanceMatrix.getValue(i+1,j+1) << std::endl ;
+
+                    glVertex3f((i+1)*squareWidth, (j+1)*squareWidth,1-distanceMatrix.getValue(i+1,j+1));
+                    glVertex3f((i+1)*squareWidth, j*squareWidth,1-distanceMatrix.getValue(i+1,j));
+                    glVertex3f(i*squareWidth, j*squareWidth,1-distanceMatrix.getValue(i,j));
                  glEnd();
              }
          }
     }
 
     update();
+}
+
+void OpenGlSurface::generateMesh()
+{
+//    for ( unsigned int  i = 0; i < distanceMatrix.getSize(); ++i)
+//    {
+//         for ( unsigned int  j = 0; j < distanceMatrix.getSize(); ++j)
+//         {
+//             double squareWidth = 1 / (double)distanceMatrix.getSize() ;
+
+//             if( i == distanceMatrix.getSize()-1 || j == distanceMatrix.getSize()-1  )
+//                 continue;
+
+//             glBegin(GL_TRIANGLES);
+//                glVertex3f(i*squareWidth, j*squareWidth,1-distanceMatrix.getValue(i,j));
+//                glVertex3f(i*squareWidth, (j+1)*squareWidth,1-distanceMatrix.getValue(i,j+1));
+//                glVertex3f((i+1)*squareWidth, (j+1)*squareWidth,1-distanceMatrix.getValue(i+1,j+1));
+
+//                // Generating Mesh Data
+
+//                std::cout << i*squareWidth << " " << j*squareWidth << " " << distanceMatrix.getValue(i,j) << std::endl ;
+//                std::cout << i*squareWidth << " " << (j+1)*squareWidth << " " << distanceMatrix.getValue(i,j+1) << std::endl ;
+//                std::cout << (i+1)*squareWidth << " " << (j+1)*squareWidth << " " << distanceMatrix.getValue(i+1,j+1) << std::endl ;
+
+//                glVertex3f((i+1)*squareWidth, (j+1)*squareWidth,1-distanceMatrix.getValue(i+1,j+1));
+//                glVertex3f((i+1)*squareWidth, j*squareWidth,1-distanceMatrix.getValue(i+1,j));
+//                glVertex3f(i*squareWidth, j*squareWidth,1-distanceMatrix.getValue(i,j));
+//             glEnd();
+//         }
+//    }
 }
 
 static void qNormalizeAngle(int &angle)
