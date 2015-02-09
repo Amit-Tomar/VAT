@@ -32,8 +32,8 @@ private:
 
     double ** dissimilarityMatrix;
     unsigned int dissimilarityMatrixSize;
-    double maximumDistance;
-    int maximumDistanceIndex ;
+    double minimumDistance;
+    int minimumDistanceIndex ;
     std::vector<unsigned int> verticesChosen;
 
 };

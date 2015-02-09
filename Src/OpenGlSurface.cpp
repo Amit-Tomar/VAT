@@ -29,6 +29,7 @@ OpenGlSurface::OpenGlSurface(int x , int y, int width, int height, QGLWidget *pa
     renderingCircleSize = 1;
     intensity = 1;
     sceneScale = 1;
+    drawGraphLayoutLines = false;
 
     bool flag = true;
     std::vector<double> readFeatureList;
@@ -66,7 +67,7 @@ OpenGlSurface::OpenGlSurface(int x , int y, int width, int height, QGLWidget *pa
         std::cout << DIMENSIONS_IN_DATA << " dimensional data with " << dataSet.getDataPointsList().size() << " vectors." << std::endl ;
 
         std::cout << "Randomizing data set.." << std::endl;
-        dataSet.randomRearrangeDataset();
+        //dataSet.randomRearrangeDataset();
 
         std::cout << "Normalizing data set to common distribution.." << std::endl;
         dataSet.normalizeDataset();
@@ -91,6 +92,8 @@ OpenGlSurface::OpenGlSurface(int x , int y, int width, int height, QGLWidget *pa
 
     std::cout << "Applying VAT.." << std::endl;
     distanceMatrix.applyVAT();
+
+    distanceMatrix.printMatrix();
 
     std::cout << "Rendering.." << std::endl;
     distanceMatrix.printSeriationOrder();
@@ -120,20 +123,20 @@ void OpenGlSurface::initializeGL()
 
     if( !drawVATAsRectangles )
     {
-       GLfloat mat_specular[]   = { .1,.1,.1, 1 };
+       GLfloat mat_specular[]   = { .21,.21,.21, 1 };
        GLfloat mat_shininess[]  = { 90.0 };
-       GLfloat light_position[] = { 0, 0, 5.0, 0.0 };
+       GLfloat light_position[] = { 0, 0, 2.0, 0.0 };
        glClearColor (0.0, 0.0, 0.0, 0.0);
 
 // Bright Light k
-#if 0
+#if 1
        GLfloat global_ambient[] = { 0.5f, 0.5f, 0.5f, 1.0f };
        glLightModelfv(GL_LIGHT_MODEL_AMBIENT, global_ambient);
 #endif
 
        glShadeModel (GL_SMOOTH);
        glEnable(GL_COLOR_MATERIAL);
-       glColorMaterial(GL_FRONT, GL_AMBIENT_AND_DIFFUSE);
+       //glColorMaterial(GL_FRONT, GL_AMBIENT_AND_DIFFUSE);
        glMaterialfv(GL_FRONT, GL_SPECULAR, mat_specular);
        glMaterialfv(GL_FRONT, GL_SHININESS, mat_shininess);
        glLightfv(GL_LIGHT0, GL_POSITION, light_position);
@@ -244,7 +247,10 @@ void OpenGlSurface::keyPressEvent(QKeyEvent * keyevent)
                     distanceMatrix.setValue(i,j,distanceMatrix.getValue(i,j)-.05);
     }
 
-
+    else if( keyevent->key() == Qt::Key_L )
+    {
+        drawGraphLayoutLines = !drawGraphLayoutLines;
+    }
 }
 
 /*
@@ -387,6 +393,22 @@ void OpenGlSurface::draw()
 
                  glRectf(i*squareWidth, j*squareWidth, (i+1)*squareWidth, (j+1)*squareWidth);
 
+                 if (drawGraphLayoutLines)
+                 {
+                     glColor3f(0,0,0);
+                     glBegin(GL_LINES);
+                         glVertex2d(i*squareWidth, j*squareWidth);
+                         glVertex2d(i*squareWidth, j*squareWidth+10);
+                     glEnd();
+
+                     glColor3f(0,0,0);
+                     glBegin(GL_LINES);
+                         glVertex2d(i*squareWidth, j*squareWidth);
+                         glVertex2d(i*squareWidth+10, j*squareWidth);
+                     glEnd();
+                 }
+
+
 #if 0
                  glEnd();
 #endif
@@ -419,9 +441,9 @@ void OpenGlSurface::draw()
 
                     // Generating Mesh Data
 
-                    std::cout << i*squareWidth << " " << j*squareWidth << " " << distanceMatrix.getValue(i,j) << std::endl ;
-                    std::cout << i*squareWidth << " " << (j+1)*squareWidth << " " << distanceMatrix.getValue(i,j+1) << std::endl ;
-                    std::cout << (i+1)*squareWidth << " " << (j+1)*squareWidth << " " << distanceMatrix.getValue(i+1,j+1) << std::endl ;
+                    //std::cout << i*squareWidth << " " << j*squareWidth << " " << distanceMatrix.getValue(i,j) << std::endl ;
+                    //std::cout << i*squareWidth << " " << (j+1)*squareWidth << " " << distanceMatrix.getValue(i,j+1) << std::endl ;
+                    //std::cout << (i+1)*squareWidth << " " << (j+1)*squareWidth << " " << distanceMatrix.getValue(i+1,j+1) << std::endl ;
 
                     glVertex3f((i+1)*squareWidth, (j+1)*squareWidth,1-distanceMatrix.getValue(i+1,j+1));
                     glVertex3f((i+1)*squareWidth, j*squareWidth,1-distanceMatrix.getValue(i+1,j));

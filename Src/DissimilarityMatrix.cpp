@@ -2,8 +2,8 @@
 
 DissimilarityMatrix::DissimilarityMatrix()
 {
-    maximumDistance = 0.0f;
-    maximumDistanceIndex = 0;
+    minimumDistance = 10000.0f;
+    minimumDistanceIndex = 0;
 }
 
 void DissimilarityMatrix::normalizeMatrix()
@@ -54,7 +54,7 @@ void DissimilarityMatrix::printMatrix()
     {
         for( unsigned int j = 0 ; j < dissimilarityMatrixSize ; ++j)
         {
-            std::cout << dissimilarityMatrix[i][j] << "  ";
+            printf("%.5f ", dissimilarityMatrix[i][j] );
         }
 
         std::cout << std::endl ;
@@ -67,10 +67,10 @@ void DissimilarityMatrix::fillMaxInfo()
     {
         for( unsigned int j = 0 ; j < dissimilarityMatrixSize ; ++j)
         {
-            if( i !=j && dissimilarityMatrix[i][j] > maximumDistance )
+            if( i !=j && dissimilarityMatrix[i][j] < minimumDistance )
             {
-                maximumDistance = dissimilarityMatrix[i][j];
-                maximumDistanceIndex = i ;
+                minimumDistance = dissimilarityMatrix[i][j];
+                minimumDistanceIndex = j ;
             }
         }
     }
@@ -85,12 +85,14 @@ void DissimilarityMatrix::applyVAT()
         vertices.push_back(i);
     }
 
-    verticesChosen.push_back(maximumDistanceIndex);
-    vertices.erase(std::remove(vertices.begin(), vertices.end(), maximumDistanceIndex), vertices.end());
+    std::cout << "First chosen vertex " << minimumDistanceIndex << std::endl ;
+
+    verticesChosen.push_back(minimumDistanceIndex);
+    vertices.erase(std::remove(vertices.begin(), vertices.end(), minimumDistanceIndex), vertices.end());
 
     while( 0 != vertices.size() )
     {
-        double minimumDistance = 10.0f;
+        double minimumDistance = 10000.0f;
         unsigned int minimumDistanceVertex  = 0;
 
         // Apply VAT

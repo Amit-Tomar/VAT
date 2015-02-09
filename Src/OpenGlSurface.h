@@ -65,6 +65,7 @@ private:
     DataSet <double,double> dataSet;
     DissimilarityMatrix distanceMatrix;
 
+    bool drawGraphLayoutLines;
     bool drawVATAsRectangles;
     int renderingCircleSize;
     double intensity;
