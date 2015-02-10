@@ -54,7 +54,14 @@ void DissimilarityMatrix::printMatrix()
     {
         for( unsigned int j = 0 ; j < dissimilarityMatrixSize ; ++j)
         {
-            printf("%.5f ", dissimilarityMatrix[i][j] );
+            if( i != j && j < dissimilarityMatrixSize-1 )
+                printf("%.5f,", dissimilarityMatrix[i][j] );
+            else if ( i != j )
+                printf("%.5f", dissimilarityMatrix[i][j] );
+            else if( i == j && j != dissimilarityMatrixSize-1 )
+                std::cout << "0.00000," ;
+            else
+                std::cout << "0.00000" ;
         }
 
         std::cout << std::endl ;

@@ -66,7 +66,7 @@ private:
     DissimilarityMatrix distanceMatrix;
 
     bool drawGraphLayoutLines;
-    bool drawVATAsRectangles;
+    bool draw2DVAT;
     int renderingCircleSize;
     double intensity;
 };

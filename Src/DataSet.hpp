@@ -24,9 +24,8 @@ public:
         {
             for( int i = 0 ; i < point1.getFeatureVector().size() ; ++i )
             {
-                distance += pow ( point1.getFeatureI(i)-point2.getFeatureI(i), 2 );
+                distance += pow ( (dataPointFeatureType)point1.getFeatureI(i)-point2.getFeatureI(i), 2 );
             }
-
             return (dataPointDistanceType) sqrt(distance);
         }
 

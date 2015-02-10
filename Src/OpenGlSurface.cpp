@@ -25,7 +25,7 @@ OpenGlSurface::OpenGlSurface(int x , int y, int width, int height, QGLWidget *pa
     setFormat(QGLFormat(QGL::DoubleBuffer | QGL::DepthBuffer));
     setGeometry(x,y,width,height);
     initializeGL();
-    drawVATAsRectangles = true ;
+    draw2DVAT = true ;
     renderingCircleSize = 1;
     intensity = 1;
     sceneScale = 1;
@@ -70,7 +70,7 @@ OpenGlSurface::OpenGlSurface(int x , int y, int width, int height, QGLWidget *pa
         //dataSet.randomRearrangeDataset();
 
         std::cout << "Normalizing data set to common distribution.." << std::endl;
-        dataSet.normalizeDataset();
+        //dataSet.normalizeDataset();
 
         std::cout << "Allocating memory and filling dissimilarity matrix.." << std::endl;
         distanceMatrix.allocateAndFill(dataSet);
@@ -82,18 +82,18 @@ OpenGlSurface::OpenGlSurface(int x , int y, int width, int height, QGLWidget *pa
         std::cout << "Allocating memory and filling dissimilarity matrix.." << std::endl;
         distanceMatrix.allocateAndFill();
         std::cout << "Parsing finished.." << std::endl;
-    }
+    }    
 
     std::cout << "Normalizing dissimilarity matrix.." << std::endl;
     distanceMatrix.normalizeMatrix();
 
+    distanceMatrix.printMatrix();
+
     std::cout << "Finding Maximum.." << std::endl;
-    distanceMatrix.fillMaxInfo();
+    distanceMatrix.fillMaxInfo();    
 
     std::cout << "Applying VAT.." << std::endl;
-    distanceMatrix.applyVAT();
-
-    distanceMatrix.printMatrix();
+    distanceMatrix.applyVAT();    
 
     std::cout << "Rendering.." << std::endl;
     distanceMatrix.printSeriationOrder();
@@ -121,7 +121,7 @@ void OpenGlSurface::initializeGL()
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_NORMALIZE); // Automatically normalizes the normal vectors
 
-    if( !drawVATAsRectangles )
+    if( !draw2DVAT )
     {
        GLfloat mat_specular[]   = { .21,.21,.21, 1 };
        GLfloat mat_shininess[]  = { 90.0 };
@@ -170,7 +170,7 @@ void OpenGlSurface::resizeGL(int width, int height)
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();    
 
-    drawVATAsRectangles ? glOrtho(0,1,1,0,0,100) : gluPerspective(50,width/height,1,100);
+    draw2DVAT ? glOrtho(0,1,1,0,0,100) : gluPerspective(50,width/height,1,100);
 
     glMatrixMode(GL_MODELVIEW);
 }
@@ -212,9 +212,17 @@ void OpenGlSurface::mouseMoveEvent(QMouseEvent *mouseEvent)
 
 void OpenGlSurface::keyPressEvent(QKeyEvent * keyevent)
 {
+    // Toggles view b/w 2D and 3D
+    // Update light and the projections for 2D-3D views
     if( keyevent->key() == Qt::Key_T )
     {
-        drawVATAsRectangles = !drawVATAsRectangles;
+        draw2DVAT = !draw2DVAT;
+        glMatrixMode(GL_PROJECTION);
+        glLoadIdentity();
+
+        draw2DVAT ? glOrtho(0,1,1,0,0,100) : gluPerspective(50,width() /height(),1,100);
+
+        glMatrixMode(GL_MODELVIEW);
     }
 
     else if( keyevent->key() == Qt::Key_Up )
@@ -260,7 +268,7 @@ void OpenGlSurface::draw()
 {
     glLoadIdentity();
 
-    if( !drawVATAsRectangles )
+    if( !draw2DVAT )
     {
         // Re-position Camera
         gluLookAt(0,1.5,1.5,0,0,0,0,1,0);
@@ -378,7 +386,7 @@ void OpenGlSurface::draw()
 
              double squareWidth = 1 / (double)distanceMatrix.getSize() ;
 
-             if( drawVATAsRectangles )
+             if( draw2DVAT )
              {
                  // Height Mapping
 #if 0
