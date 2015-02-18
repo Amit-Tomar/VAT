@@ -26,6 +26,9 @@ public:
             {
                 distance += pow ( (dataPointFeatureType)point1.getFeatureI(i)-point2.getFeatureI(i), 2 );
             }
+
+            //std::cout << "Distance between points " << sqrt(distance) << std::endl;
+
             return (dataPointDistanceType) sqrt(distance);
         }
 

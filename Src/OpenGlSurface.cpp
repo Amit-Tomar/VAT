@@ -8,7 +8,6 @@
 
 #include "OpenGlSurface.h"
 
-
 /*
  * Constructor
  *
@@ -36,7 +35,6 @@ OpenGlSurface::OpenGlSurface(int x , int y, int width, int height, QGLWidget *pa
 
     if( IS_FEATURE_VECTOR_FILE )
     {
-
         std::cout << "Parsing started.." << std::endl;
 
         while(flag)
@@ -87,7 +85,7 @@ OpenGlSurface::OpenGlSurface(int x , int y, int width, int height, QGLWidget *pa
     std::cout << "Normalizing dissimilarity matrix.." << std::endl;
     distanceMatrix.normalizeMatrix();
 
-    distanceMatrix.printMatrix();
+    //distanceMatrix.printMatrix();
 
     std::cout << "Finding Maximum.." << std::endl;
     distanceMatrix.fillMaxInfo();    
@@ -107,6 +105,24 @@ OpenGlSurface::~OpenGlSurface()
 void OpenGlSurface::saveFrameBuffer()
 {
     this->grabFrameBuffer().save("../Outputs/VAT.png");
+
+    QImage image(distanceMatrix.getSize()*ONE_PIXEL_BLOCK, distanceMatrix.getSize()*ONE_PIXEL_BLOCK, QImage::Format_RGB32);
+
+    for( int i = 0 ; i < distanceMatrix.getSize()*ONE_PIXEL_BLOCK ; i+=ONE_PIXEL_BLOCK )
+    {
+        for( int j = 0 ; j < distanceMatrix.getSize()*ONE_PIXEL_BLOCK ; j+=ONE_PIXEL_BLOCK )
+        {
+            for( int k = i ; k < i+ONE_PIXEL_BLOCK ; k++ )
+                for( int l = j ; l < j+ONE_PIXEL_BLOCK ; l++ )
+                {
+                    double dissimilarity = distanceMatrix.getValue(i/ONE_PIXEL_BLOCK,j/ONE_PIXEL_BLOCK);
+                    image.setPixel(k, l, qRgb(dissimilarity*255,dissimilarity*255,dissimilarity*255));
+                }
+        }
+    }
+
+
+    image.save("test.JPG");
 }
 
 

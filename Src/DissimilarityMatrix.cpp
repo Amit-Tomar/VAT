@@ -23,13 +23,16 @@ void DissimilarityMatrix::normalizeMatrix()
         }
     }    
 
+    std::cout << "Initial Max: " << maxDistance << std::endl;
+    std::cout << "Initial Min: " << minDistance << std::endl;
+
     for( unsigned int i = 0 ; i < dissimilarityMatrixSize ; ++i)
     {
         for( unsigned int j = 0 ; j < dissimilarityMatrixSize ; ++j)
         {
                 dissimilarityMatrix[i][j] = (dissimilarityMatrix[i][j] - minDistance ) / (maxDistance - minDistance);
         }
-    }      
+    }
 }
 
 void DissimilarityMatrix::randomRearrangeMatrix()

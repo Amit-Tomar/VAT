@@ -81,9 +81,9 @@ int main(int argc, char *argv[])
 
     QApplication a(argc, argv);
 
-    OpenGlSurface *surface = new OpenGlSurface(0,0,600,600);
+    OpenGlSurface *surface = new OpenGlSurface(0,0,650,650);
 
-    surface->show();    
+    surface->show();
 
     return a.exec();
 }

@@ -16,9 +16,12 @@
 #include <vector>
 #include <cmath>
 #include <GL/glu.h>
+#include <qbuffer.h>
 #include "DataSet.hpp"
 #include "DissimilarityMatrix.h"
 #include "GlobalSettingsData.h"
+
+#define ONE_PIXEL_BLOCK 10
 
 class OpenGlSurface : public QGLWidget
 {
