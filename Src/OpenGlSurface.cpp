@@ -20,7 +20,10 @@
 OpenGlSurface::OpenGlSurface(int x , int y, int width, int height, QGLWidget *parent)
     : QGLWidget(QGLFormat(QGL::SampleBuffers), parent)
 {
-    distanceMatrix.setSize(0);
+    dissimilarityMatrix.setSize(0);
+    adjacencyMatrix.setSize(0);
+    adjacencyMatrix.setAdjacency();
+    alpha = 1.0f;
     setFormat(QGLFormat(QGL::DoubleBuffer | QGL::DepthBuffer));
     setGeometry(x,y,width,height);
     initializeGL();
@@ -64,37 +67,56 @@ OpenGlSurface::OpenGlSurface(int x , int y, int width, int height, QGLWidget *pa
 
         std::cout << DIMENSIONS_IN_DATA << " dimensional data with " << dataSet.getDataPointsList().size() << " vectors." << std::endl ;
 
-        std::cout << "Randomizing data set.." << std::endl;
+        //std::cout << "Randomizing data set.." << std::endl;
         //dataSet.randomRearrangeDataset();
 
         std::cout << "Normalizing data set to common distribution.." << std::endl;
-        //dataSet.normalizeDataset();
+        dataSet.normalizeDataset();
 
         std::cout << "Allocating memory and filling dissimilarity matrix.." << std::endl;
-        distanceMatrix.allocateAndFill(dataSet);
+        dissimilarityMatrix.allocateAndFill(dataSet);
+
+        std::cout << "Allocating memory and filling adjacency matrix.." << std::endl;
+        adjacencyMatrix.allocateAndFill();
+        std::cout << "Parsing finished.." << std::endl;
     }
 
     else
     {
         std::cout << "Parsing started.." << std::endl;
         std::cout << "Allocating memory and filling dissimilarity matrix.." << std::endl;
-        distanceMatrix.allocateAndFill();
+        dissimilarityMatrix.allocateAndFill();
         std::cout << "Parsing finished.." << std::endl;
-    }    
+
+        std::cout << "Allocating memory and filling adjacency matrix.." << std::endl;
+        adjacencyMatrix.allocateAndFill();
+        std::cout << "Parsing finished.." << std::endl;
+    }
 
     std::cout << "Normalizing dissimilarity matrix.." << std::endl;
-    distanceMatrix.normalizeMatrix();
+    dissimilarityMatrix.normalizeMatrix();
 
-    //distanceMatrix.printMatrix();
+    unifiedMatrix.allocate();
+
+    // Fill in the combined matrix
+    for( unsigned int i = 0 ; i < DATA_SET_SIZE ; ++i)
+    {
+        for( unsigned int j = 0 ; j < DATA_SET_SIZE ; ++j)
+        {
+           unifiedMatrix.setValue(i,j, (dissimilarityMatrix.getValue(i,j) * alpha) + (adjacencyMatrix.getValue(i,j)*(1-alpha)) );
+        }
+    }
 
     std::cout << "Finding Maximum.." << std::endl;
-    distanceMatrix.fillMaxInfo();    
+    unifiedMatrix.fillMaxInfo();
+
+    unifiedMatrix.printMatrix();
 
     std::cout << "Applying VAT.." << std::endl;
-    distanceMatrix.applyVAT();    
+    unifiedMatrix.applyVAT();
 
     std::cout << "Rendering.." << std::endl;
-    distanceMatrix.printSeriationOrder();
+    dissimilarityMatrix.printSeriationOrder();
 }
 
 OpenGlSurface::~OpenGlSurface()
@@ -106,16 +128,16 @@ void OpenGlSurface::saveFrameBuffer()
 {
     this->grabFrameBuffer().save("../Outputs/VAT.png");
 
-    QImage image(distanceMatrix.getSize()*ONE_PIXEL_BLOCK, distanceMatrix.getSize()*ONE_PIXEL_BLOCK, QImage::Format_RGB32);
+    QImage image(dissimilarityMatrix.getSize()*ONE_PIXEL_BLOCK, dissimilarityMatrix.getSize()*ONE_PIXEL_BLOCK, QImage::Format_RGB32);
 
-    for( int i = 0 ; i < distanceMatrix.getSize()*ONE_PIXEL_BLOCK ; i+=ONE_PIXEL_BLOCK )
+    for( int i = 0 ; i < dissimilarityMatrix.getSize()*ONE_PIXEL_BLOCK ; i+=ONE_PIXEL_BLOCK )
     {
-        for( int j = 0 ; j < distanceMatrix.getSize()*ONE_PIXEL_BLOCK ; j+=ONE_PIXEL_BLOCK )
+        for( int j = 0 ; j < dissimilarityMatrix.getSize()*ONE_PIXEL_BLOCK ; j+=ONE_PIXEL_BLOCK )
         {
             for( int k = i ; k < i+ONE_PIXEL_BLOCK ; k++ )
                 for( int l = j ; l < j+ONE_PIXEL_BLOCK ; l++ )
                 {
-                    double dissimilarity = distanceMatrix.getValue(i/ONE_PIXEL_BLOCK,j/ONE_PIXEL_BLOCK);
+                    double dissimilarity = dissimilarityMatrix.getValue(i/ONE_PIXEL_BLOCK,j/ONE_PIXEL_BLOCK);
                     image.setPixel(k, l, qRgb(dissimilarity*255,dissimilarity*255,dissimilarity*255));
                 }
         }
@@ -263,18 +285,66 @@ void OpenGlSurface::keyPressEvent(QKeyEvent * keyevent)
 
     else if( keyevent->key() == Qt::Key_I )
     {
-        for( int i = 0 ; i < distanceMatrix.getSize() ; ++i )
-            for( int j = 0 ; j < distanceMatrix.getSize() ; ++j )
-                if( distanceMatrix.getValue(i,j) > .5 )
-                    distanceMatrix.setValue(i,j,distanceMatrix.getValue(i,j)+.05);
+        for( int i = 0 ; i < dissimilarityMatrix.getSize() ; ++i )
+            for( int j = 0 ; j < dissimilarityMatrix.getSize() ; ++j )
+                if( dissimilarityMatrix.getValue(i,j) > .5 )
+                    dissimilarityMatrix.setValue(i,j,dissimilarityMatrix.getValue(i,j)+.05);
                 else
-                    distanceMatrix.setValue(i,j,distanceMatrix.getValue(i,j)-.05);
+                    dissimilarityMatrix.setValue(i,j,dissimilarityMatrix.getValue(i,j)-.05);
     }
 
     else if( keyevent->key() == Qt::Key_L )
     {
         drawGraphLayoutLines = !drawGraphLayoutLines;
     }
+
+    else if( keyevent->key() == Qt::Key_S )
+    {
+        alpha += .1;
+
+        alpha > 1 ? alpha = 1 : 0;
+
+        // Fill in the combined matrix
+        for( unsigned int i = 0 ; i < DATA_SET_SIZE ; ++i)
+        {
+            for( unsigned int j = 0 ; j < DATA_SET_SIZE ; ++j)
+            {
+               unifiedMatrix.setValue(i,j, (dissimilarityMatrix.getValue(i,j) * alpha) + (adjacencyMatrix.getValue(i,j)*(1-alpha)) );
+            }
+        }
+
+        std::cout << "Finding Maximum.." << std::endl;
+        unifiedMatrix.fillMaxInfo();
+
+        std::cout << "Applying VAT.." << std::endl;
+        unifiedMatrix.applyVAT();
+    }
+
+    else if( keyevent->key() == Qt::Key_A )
+    {
+        alpha -= .1;
+
+        alpha < 0 ? alpha = 0 : 0;
+
+        // Fill in the combined matrix
+        for( unsigned int i = 0 ; i < DATA_SET_SIZE ; ++i)
+        {
+            for( unsigned int j = 0 ; j < DATA_SET_SIZE ; ++j)
+            {
+               unifiedMatrix.setValue(i,j, (dissimilarityMatrix.getValue(i,j) * alpha) + (adjacencyMatrix.getValue(i,j)*(1-alpha)) );
+            }
+        }
+
+        unifiedMatrix.printSeriationOrder();
+
+        std::cout << "Finding Maximum.." << std::endl;
+        unifiedMatrix.fillMaxInfo();
+
+        std::cout << "Applying VAT.." << std::endl;
+        unifiedMatrix.applyVAT();
+    }
+
+    std::cout << "Current Alpha : " << alpha << std::endl ;
 }
 
 /*
@@ -299,15 +369,16 @@ void OpenGlSurface::draw()
         glTranslatef(-.5,-.5,0);
     }
 
-    for ( unsigned int  i = 0; i < distanceMatrix.getSize(); ++i)
+    for ( unsigned int  i = 0; i < dissimilarityMatrix.getSize(); ++i)
     {
-         for ( unsigned int  j = 0; j < distanceMatrix.getSize(); ++j)
+         for ( unsigned int  j = 0; j < dissimilarityMatrix.getSize(); ++j)
          {
              // Enable blending for alpha component of glcolor to work properly
              glEnable(GL_BLEND);
              glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-             double dissimilarityValue = distanceMatrix.getValue(i,j);
+             //double dissimilarityValue = dissimilarityMatrix.getValue(i,j);
+             double dissimilarityValue = unifiedMatrix.getValue(i,j);
              double red, green, blue;
 
              switch ( COLOR_MAP_TYPE )
@@ -322,7 +393,7 @@ void OpenGlSurface::draw()
                 case e_rgbRainbow : // 5-Color Heatmap Blue|Cyan|Green|Yellow|Red
 
                     // To reverse the color encoding direction
-                    dissimilarityValue = 1-distanceMatrix.getValue(i,j);
+                    dissimilarityValue = 1-dissimilarityMatrix.getValue(i,j);
 
                     // RGB Rainbow
                     if( dissimilarityValue < .25 ) // Blue(0,0,1) to Cyan(0,1,1)
@@ -358,7 +429,7 @@ void OpenGlSurface::draw()
                 case e_diverging_BLUE_RED : // Cold To Warm
 
                  // To reverse the color encoding direction
-                 dissimilarityValue = 1-distanceMatrix.getValue(i,j);
+                 dissimilarityValue = 1-dissimilarityMatrix.getValue(i,j);
 
                     red   = ((.706-.230) * dissimilarityValue)+.230 ;
                     green = ((.016-.299) * dissimilarityValue)+.299 ;
@@ -368,7 +439,7 @@ void OpenGlSurface::draw()
                 case e_diverging_GREEN_RED :
 
                  // To reverse the color encoding direction
-                 dissimilarityValue = 1-distanceMatrix.getValue(i,j);
+                 dissimilarityValue = 1-dissimilarityMatrix.getValue(i,j);
 
                      red   = ((.758-.085) * dissimilarityValue)+.085 ;
                      green = ((.214-.532) * dissimilarityValue)+.532 ;
@@ -378,7 +449,7 @@ void OpenGlSurface::draw()
                 case e_diverging_PURPLE_ORANGE :
 
                  // To reverse the color encoding direction
-                 dissimilarityValue = 1-distanceMatrix.getValue(i,j);
+                 dissimilarityValue = 1-dissimilarityMatrix.getValue(i,j);
 
                      red   = ((.759-.436) * dissimilarityValue)+.436 ;
                      green = ((.334-.308) * dissimilarityValue)+.308 ;
@@ -400,7 +471,7 @@ void OpenGlSurface::draw()
 
              glColor4f(red,green,blue, 1 );
 
-             double squareWidth = 1 / (double)distanceMatrix.getSize() ;
+             double squareWidth = 1 / (double)dissimilarityMatrix.getSize() ;
 
              if( draw2DVAT )
              {
@@ -440,7 +511,7 @@ void OpenGlSurface::draw()
 
              else
              {
-                 if( i == distanceMatrix.getSize()-1 || j == distanceMatrix.getSize()-1  )
+                 if( i == dissimilarityMatrix.getSize()-1 || j == dissimilarityMatrix.getSize()-1  )
                      continue;
 
                  glEnable(GL_POINT_SMOOTH);
@@ -450,18 +521,18 @@ void OpenGlSurface::draw()
                  float vector1[3], vector2[3];
                  vector1[0] = i*squareWidth - (i+1)*squareWidth;
                  vector1[1] = 0.0f;
-                 vector1[2] = distanceMatrix.getValue(i,j) - distanceMatrix.getValue(i+1,j);
+                 vector1[2] = dissimilarityMatrix.getValue(i,j) - dissimilarityMatrix.getValue(i+1,j);
 
                  vector2[0] = 0.0f;
                  vector2[1] = j*squareWidth - (j+1)*squareWidth;
-                 vector2[2] = distanceMatrix.getValue(i,j) - distanceMatrix.getValue(i,j+1);
+                 vector2[2] = dissimilarityMatrix.getValue(i,j) - dissimilarityMatrix.getValue(i,j+1);
 
                  calculateNormal(vector1,vector2);
 
                  glBegin(GL_TRIANGLES);
-                    glVertex3f(i*squareWidth, j*squareWidth,1-distanceMatrix.getValue(i,j));
-                    glVertex3f(i*squareWidth, (j+1)*squareWidth,1-distanceMatrix.getValue(i,j+1));
-                    glVertex3f((i+1)*squareWidth, (j+1)*squareWidth,1-distanceMatrix.getValue(i+1,j+1));
+                    glVertex3f(i*squareWidth, j*squareWidth,1-dissimilarityMatrix.getValue(i,j));
+                    glVertex3f(i*squareWidth, (j+1)*squareWidth,1-dissimilarityMatrix.getValue(i,j+1));
+                    glVertex3f((i+1)*squareWidth, (j+1)*squareWidth,1-dissimilarityMatrix.getValue(i+1,j+1));
 
                     // Generating Mesh Data
 
@@ -469,9 +540,9 @@ void OpenGlSurface::draw()
                     //std::cout << i*squareWidth << " " << (j+1)*squareWidth << " " << distanceMatrix.getValue(i,j+1) << std::endl ;
                     //std::cout << (i+1)*squareWidth << " " << (j+1)*squareWidth << " " << distanceMatrix.getValue(i+1,j+1) << std::endl ;
 
-                    glVertex3f((i+1)*squareWidth, (j+1)*squareWidth,1-distanceMatrix.getValue(i+1,j+1));
-                    glVertex3f((i+1)*squareWidth, j*squareWidth,1-distanceMatrix.getValue(i+1,j));
-                    glVertex3f(i*squareWidth, j*squareWidth,1-distanceMatrix.getValue(i,j));
+                    glVertex3f((i+1)*squareWidth, (j+1)*squareWidth,1-dissimilarityMatrix.getValue(i+1,j+1));
+                    glVertex3f((i+1)*squareWidth, j*squareWidth,1-dissimilarityMatrix.getValue(i+1,j));
+                    glVertex3f(i*squareWidth, j*squareWidth,1-dissimilarityMatrix.getValue(i,j));
                  glEnd();
              }
          }

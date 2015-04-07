@@ -135,6 +135,7 @@ public:
         else
         {
             std::cerr << "Invalid dissimilarity function type" << std::endl ;
+            return 0.0;
         }
     }
 

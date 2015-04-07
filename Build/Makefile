@@ -18,7 +18,7 @@ CXXFLAGS      = -pipe -g -Wall -W -D_REENTRANT -fPIE $(DEFINES)
 INCPATH       = -I../../../../Qt5.3.2/5.3/gcc_64/mkspecs/linux-g++ -I../Src -I../../../../Qt5.3.2/5.3/gcc_64/include -I../../../../Qt5.3.2/5.3/gcc_64/include/QtOpenGL -I../../../../Qt5.3.2/5.3/gcc_64/include/QtWidgets -I../../../../Qt5.3.2/5.3/gcc_64/include/QtGui -I../../../../Qt5.3.2/5.3/gcc_64/include/QtCore -I. -I.
 LINK          = g++
 LFLAGS        = -Wl,-rpath,/home/gvcl-admin/Qt5.3.2/5.3/gcc_64 -Wl,-rpath,/home/gvcl-admin/Qt5.3.2/5.3/gcc_64/lib
-LIBS          = $(SUBLIBS) -L/home/gvcl-admin/Qt5.3.2/5.3/gcc_64/lib -lQt5OpenGL -lQt5Widgets -lQt5Gui -lQt5Core -lGL -lpthread 
+LIBS          = $(SUBLIBS) -lGLU -L/home/gvcl-admin/Qt5.3.2/5.3/gcc_64/lib -lQt5OpenGL -lQt5Widgets -lQt5Gui -lQt5Core -lGL -lpthread 
 AR            = ar cqs
 RANLIB        = 
 QMAKE         = /home/gvcl-admin/Qt5.3.2/5.3/gcc_64/bin/qmake
@@ -47,10 +47,12 @@ OBJECTS_DIR   = ./
 
 SOURCES       = ../Src/main.cpp \
 		../Src/OpenGlSurface.cpp \
-		../Src/DissimilarityMatrix.cpp moc_OpenGlSurface.cpp
+		../Src/GlobalSettingsData.cpp \
+		../Src/Matrix.cpp moc_OpenGlSurface.cpp
 OBJECTS       = main.o \
 		OpenGlSurface.o \
-		DissimilarityMatrix.o \
+		GlobalSettingsData.o \
+		Matrix.o \
 		moc_OpenGlSurface.o
 DIST          = ../../../../Qt5.3.2/5.3/gcc_64/mkspecs/features/spec_pre.prf \
 		../../../../Qt5.3.2/5.3/gcc_64/mkspecs/common/shell-unix.conf \
@@ -161,7 +163,8 @@ DIST          = ../../../../Qt5.3.2/5.3/gcc_64/mkspecs/features/spec_pre.prf \
 		../../../../Qt5.3.2/5.3/gcc_64/mkspecs/features/lex.prf \
 		../Src/VAT.pro ../Src/main.cpp \
 		../Src/OpenGlSurface.cpp \
-		../Src/DissimilarityMatrix.cpp
+		../Src/GlobalSettingsData.cpp \
+		../Src/Matrix.cpp
 QMAKE_TARGET  = VAT
 DESTDIR       = #avoid trailing-slash linebreak
 TARGET        = VAT
@@ -426,7 +429,7 @@ qmake_all: FORCE
 
 dist: 
 	@test -d .tmp/VAT1.0.0 || mkdir -p .tmp/VAT1.0.0
-	$(COPY_FILE) --parents $(DIST) .tmp/VAT1.0.0/ && $(COPY_FILE) --parents ../Src/OpenGlSurface.h ../Src/OpenGlSurface.h ../Src/DataPoint.h ../Src/DataSet.h ../Src/DissimilarityMatrix.h .tmp/VAT1.0.0/ && $(COPY_FILE) --parents ../Src/main.cpp ../Src/OpenGlSurface.cpp ../Src/DissimilarityMatrix.cpp .tmp/VAT1.0.0/ && (cd `dirname .tmp/VAT1.0.0` && $(TAR) VAT1.0.0.tar VAT1.0.0 && $(COMPRESS) VAT1.0.0.tar) && $(MOVE) `dirname .tmp/VAT1.0.0`/VAT1.0.0.tar.gz . && $(DEL_FILE) -r .tmp/VAT1.0.0
+	$(COPY_FILE) --parents $(DIST) .tmp/VAT1.0.0/ && $(COPY_FILE) --parents ../Src/OpenGlSurface.h ../Src/OpenGlSurface.h ../Src/DataSet.hpp ../Src/DataPoint.hpp ../Src/Statistics.h ../Src/GlobalSettingsData.h ../Src/Matrix.h .tmp/VAT1.0.0/ && $(COPY_FILE) --parents ../Src/main.cpp ../Src/OpenGlSurface.cpp ../Src/GlobalSettingsData.cpp ../Src/Matrix.cpp .tmp/VAT1.0.0/ && (cd `dirname .tmp/VAT1.0.0` && $(TAR) VAT1.0.0.tar VAT1.0.0 && $(COMPRESS) VAT1.0.0.tar) && $(MOVE) `dirname .tmp/VAT1.0.0`/VAT1.0.0.tar.gz . && $(DEL_FILE) -r .tmp/VAT1.0.0
 
 
 clean:compiler_clean 
@@ -566,17 +569,12 @@ moc_OpenGlSurface.cpp: ../../../../Qt5.3.2/5.3/gcc_64/include/QtOpenGL/QGLWidget
 		../../../../Qt5.3.2/5.3/gcc_64/include/QtGui/QSurfaceFormat \
 		../../../../Qt5.3.2/5.3/gcc_64/include/QtGui/qsurfaceformat.h \
 		../../../../Qt5.3.2/5.3/gcc_64/include/QtGui/QMouseEvent \
-		../../../../Qt5.3.2/5.3/gcc_64/include/QtWidgets/QSlider \
-		../../../../Qt5.3.2/5.3/gcc_64/include/QtWidgets/qslider.h \
-		../../../../Qt5.3.2/5.3/gcc_64/include/QtWidgets/qabstractslider.h \
-		../../../../Qt5.3.2/5.3/gcc_64/include/QtWidgets/QHBoxLayout \
-		../../../../Qt5.3.2/5.3/gcc_64/include/QtWidgets/qboxlayout.h \
-		../../../../Qt5.3.2/5.3/gcc_64/include/QtWidgets/qlayout.h \
-		../../../../Qt5.3.2/5.3/gcc_64/include/QtWidgets/qlayoutitem.h \
-		../../../../Qt5.3.2/5.3/gcc_64/include/QtWidgets/qgridlayout.h \
-		../Src/DataSet.h \
-		../Src/DataPoint.h \
-		../Src/DissimilarityMatrix.h \
+		../../../../Qt5.3.2/5.3/gcc_64/include/QtCore/qbuffer.h \
+		../Src/DataSet.hpp \
+		../Src/DataPoint.hpp \
+		../Src/Statistics.h \
+		../Src/GlobalSettingsData.h \
+		../Src/Matrix.h \
 		../Src/OpenGlSurface.h
 	/home/gvcl-admin/Qt5.3.2/5.3/gcc_64/bin/moc $(DEFINES) -I/home/gvcl-admin/Qt5.3.2/5.3/gcc_64/mkspecs/linux-g++ -I/home/gvcl-admin/Documents/Thesis/VAT/Src -I/home/gvcl-admin/Qt5.3.2/5.3/gcc_64/include -I/home/gvcl-admin/Qt5.3.2/5.3/gcc_64/include/QtOpenGL -I/home/gvcl-admin/Qt5.3.2/5.3/gcc_64/include/QtWidgets -I/home/gvcl-admin/Qt5.3.2/5.3/gcc_64/include/QtGui -I/home/gvcl-admin/Qt5.3.2/5.3/gcc_64/include/QtCore -I. ../Src/OpenGlSurface.h -o moc_OpenGlSurface.cpp
 
@@ -694,17 +692,12 @@ moc_OpenGlSurface.cpp: ../../../../Qt5.3.2/5.3/gcc_64/include/QtOpenGL/QGLWidget
 		../../../../Qt5.3.2/5.3/gcc_64/include/QtGui/QSurfaceFormat \
 		../../../../Qt5.3.2/5.3/gcc_64/include/QtGui/qsurfaceformat.h \
 		../../../../Qt5.3.2/5.3/gcc_64/include/QtGui/QMouseEvent \
-		../../../../Qt5.3.2/5.3/gcc_64/include/QtWidgets/QSlider \
-		../../../../Qt5.3.2/5.3/gcc_64/include/QtWidgets/qslider.h \
-		../../../../Qt5.3.2/5.3/gcc_64/include/QtWidgets/qabstractslider.h \
-		../../../../Qt5.3.2/5.3/gcc_64/include/QtWidgets/QHBoxLayout \
-		../../../../Qt5.3.2/5.3/gcc_64/include/QtWidgets/qboxlayout.h \
-		../../../../Qt5.3.2/5.3/gcc_64/include/QtWidgets/qlayout.h \
-		../../../../Qt5.3.2/5.3/gcc_64/include/QtWidgets/qlayoutitem.h \
-		../../../../Qt5.3.2/5.3/gcc_64/include/QtWidgets/qgridlayout.h \
-		../Src/DataSet.h \
-		../Src/DataPoint.h \
-		../Src/DissimilarityMatrix.h \
+		../../../../Qt5.3.2/5.3/gcc_64/include/QtCore/qbuffer.h \
+		../Src/DataSet.hpp \
+		../Src/DataPoint.hpp \
+		../Src/Statistics.h \
+		../Src/GlobalSettingsData.h \
+		../Src/Matrix.h \
 		../Src/OpenGlSurface.h
 	/home/gvcl-admin/Qt5.3.2/5.3/gcc_64/bin/moc $(DEFINES) -I/home/gvcl-admin/Qt5.3.2/5.3/gcc_64/mkspecs/linux-g++ -I/home/gvcl-admin/Documents/Thesis/VAT/Src -I/home/gvcl-admin/Qt5.3.2/5.3/gcc_64/include -I/home/gvcl-admin/Qt5.3.2/5.3/gcc_64/include/QtOpenGL -I/home/gvcl-admin/Qt5.3.2/5.3/gcc_64/include/QtWidgets -I/home/gvcl-admin/Qt5.3.2/5.3/gcc_64/include/QtGui -I/home/gvcl-admin/Qt5.3.2/5.3/gcc_64/include/QtCore -I. ../Src/OpenGlSurface.h -o moc_OpenGlSurface.cpp
 
@@ -837,17 +830,12 @@ main.o: ../Src/main.cpp ../Src/OpenGlSurface.h \
 		../../../../Qt5.3.2/5.3/gcc_64/include/QtGui/QSurfaceFormat \
 		../../../../Qt5.3.2/5.3/gcc_64/include/QtGui/qsurfaceformat.h \
 		../../../../Qt5.3.2/5.3/gcc_64/include/QtGui/QMouseEvent \
-		../../../../Qt5.3.2/5.3/gcc_64/include/QtWidgets/QSlider \
-		../../../../Qt5.3.2/5.3/gcc_64/include/QtWidgets/qslider.h \
-		../../../../Qt5.3.2/5.3/gcc_64/include/QtWidgets/qabstractslider.h \
-		../../../../Qt5.3.2/5.3/gcc_64/include/QtWidgets/QHBoxLayout \
-		../../../../Qt5.3.2/5.3/gcc_64/include/QtWidgets/qboxlayout.h \
-		../../../../Qt5.3.2/5.3/gcc_64/include/QtWidgets/qlayout.h \
-		../../../../Qt5.3.2/5.3/gcc_64/include/QtWidgets/qlayoutitem.h \
-		../../../../Qt5.3.2/5.3/gcc_64/include/QtWidgets/qgridlayout.h \
-		../Src/DataSet.h \
-		../Src/DataPoint.h \
-		../Src/DissimilarityMatrix.h \
+		../../../../Qt5.3.2/5.3/gcc_64/include/QtCore/qbuffer.h \
+		../Src/DataSet.hpp \
+		../Src/DataPoint.hpp \
+		../Src/Statistics.h \
+		../Src/GlobalSettingsData.h \
+		../Src/Matrix.h \
 		../../../../Qt5.3.2/5.3/gcc_64/include/QtWidgets/QApplication \
 		../../../../Qt5.3.2/5.3/gcc_64/include/QtWidgets/qapplication.h \
 		../../../../Qt5.3.2/5.3/gcc_64/include/QtCore/qcoreapplication.h \
@@ -972,23 +960,23 @@ OpenGlSurface.o: ../Src/OpenGlSurface.cpp ../Src/OpenGlSurface.h \
 		../../../../Qt5.3.2/5.3/gcc_64/include/QtGui/QSurfaceFormat \
 		../../../../Qt5.3.2/5.3/gcc_64/include/QtGui/qsurfaceformat.h \
 		../../../../Qt5.3.2/5.3/gcc_64/include/QtGui/QMouseEvent \
-		../../../../Qt5.3.2/5.3/gcc_64/include/QtWidgets/QSlider \
-		../../../../Qt5.3.2/5.3/gcc_64/include/QtWidgets/qslider.h \
-		../../../../Qt5.3.2/5.3/gcc_64/include/QtWidgets/qabstractslider.h \
-		../../../../Qt5.3.2/5.3/gcc_64/include/QtWidgets/QHBoxLayout \
-		../../../../Qt5.3.2/5.3/gcc_64/include/QtWidgets/qboxlayout.h \
-		../../../../Qt5.3.2/5.3/gcc_64/include/QtWidgets/qlayout.h \
-		../../../../Qt5.3.2/5.3/gcc_64/include/QtWidgets/qlayoutitem.h \
-		../../../../Qt5.3.2/5.3/gcc_64/include/QtWidgets/qgridlayout.h \
-		../Src/DataSet.h \
-		../Src/DataPoint.h \
-		../Src/DissimilarityMatrix.h
+		../../../../Qt5.3.2/5.3/gcc_64/include/QtCore/qbuffer.h \
+		../Src/DataSet.hpp \
+		../Src/DataPoint.hpp \
+		../Src/Statistics.h \
+		../Src/GlobalSettingsData.h \
+		../Src/Matrix.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o OpenGlSurface.o ../Src/OpenGlSurface.cpp
 
-DissimilarityMatrix.o: ../Src/DissimilarityMatrix.cpp ../Src/DissimilarityMatrix.h \
-		../Src/DataSet.h \
-		../Src/DataPoint.h
-	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o DissimilarityMatrix.o ../Src/DissimilarityMatrix.cpp
+GlobalSettingsData.o: ../Src/GlobalSettingsData.cpp ../Src/GlobalSettingsData.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o GlobalSettingsData.o ../Src/GlobalSettingsData.cpp
+
+Matrix.o: ../Src/Matrix.cpp ../Src/Matrix.h \
+		../Src/DataSet.hpp \
+		../Src/DataPoint.hpp \
+		../Src/Statistics.h \
+		../Src/GlobalSettingsData.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o Matrix.o ../Src/Matrix.cpp
 
 moc_OpenGlSurface.o: moc_OpenGlSurface.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o moc_OpenGlSurface.o moc_OpenGlSurface.cpp

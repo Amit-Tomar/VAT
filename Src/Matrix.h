@@ -1,5 +1,5 @@
-#ifndef DISSIMILARITYMATRIX_H
-#define DISSIMILARITYMATRIX_H
+#ifndef Matrix_H
+#define Matrix_H
 
 #include <iostream>
 #include <vector>
@@ -10,32 +10,34 @@
 #include "DataSet.hpp"
 #include "GlobalSettingsData.h"
 
-class DissimilarityMatrix
+class Matrix
 {
 public:
-    DissimilarityMatrix();
+    Matrix();
 
     void normalizeMatrix();
     void randomRearrangeMatrix();
-    void setSize(int size) { dissimilarityMatrixSize = size ; }
-    int  getSize() { return dissimilarityMatrixSize; }
-    double getValue(int i, int j) { return dissimilarityMatrix[i][j] ; }
-    void setValue(int i, int j,double value) { dissimilarityMatrix[i][j] = value ; }
+    void setSize(int size) { matrixSize = size ; }
+    unsigned int  getSize() { return matrixSize; }
+    double getValue(int i, int j) { return matrixPtr[i][j] ; }
+    void setValue(int i, int j,double value) { matrixPtr[i][j] = value ; }
     void printMatrix();
     void fillMaxInfo();
     void applyVAT();
     void allocateAndFill(DataSet<double,double>);
     void allocateAndFill();
+    void allocate();
     void printSeriationOrder();
+    void setAdjacency(){ isAdjacency = true; }
 
 private:
 
-    double ** dissimilarityMatrix;
-    unsigned int dissimilarityMatrixSize;
+    double ** matrixPtr;
+    unsigned int matrixSize;
     double minimumDistance;
     int minimumDistanceIndex ;
+    bool isAdjacency;
     std::vector<unsigned int> verticesChosen;
-
 };
 
-#endif // DISSIMILARITYMATRIX_H
+#endif // Matrix

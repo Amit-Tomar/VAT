@@ -14,16 +14,16 @@ TEMPLATE = app
 
 SOURCES += main.cpp\
         OpenGlSurface.cpp \
-    DissimilarityMatrix.cpp \
-    GlobalSettingsData.cpp
+    GlobalSettingsData.cpp \
+    Matrix.cpp
 
 HEADERS  += OpenGlSurface.h \
     OpenGlSurface.h \
-    DissimilarityMatrix.h \
     DataSet.hpp \
     DataPoint.hpp \
     Statistics.h \
-    GlobalSettingsData.h
+    GlobalSettingsData.h \
+    Matrix.h
 
 FORMS +=
 

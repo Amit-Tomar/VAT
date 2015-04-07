@@ -18,7 +18,7 @@
 #include <GL/glu.h>
 #include <qbuffer.h>
 #include "DataSet.hpp"
-#include "DissimilarityMatrix.h"
+#include "Matrix.h"
 #include "GlobalSettingsData.h"
 
 #define ONE_PIXEL_BLOCK 10
@@ -66,12 +66,15 @@ private:
     int viewPortHeight;
 
     DataSet <double,double> dataSet;
-    DissimilarityMatrix distanceMatrix;
+    Matrix dissimilarityMatrix;
+    Matrix adjacencyMatrix;
+    Matrix unifiedMatrix;
 
     bool drawGraphLayoutLines;
     bool draw2DVAT;
     int renderingCircleSize;
     double intensity;
+    double alpha;
 };
 
 #endif // OpenGlSurface_H

@@ -22,8 +22,8 @@ typedef enum
     e_diverging_YELLOW_BLACK,
 }colorMappings;
 
-extern int  DIMENSIONS_IN_DATA;
-extern int  DATA_SET_SIZE;
+extern unsigned int  DIMENSIONS_IN_DATA;
+extern unsigned int  DATA_SET_SIZE;
 extern bool IS_FEATURE_VECTOR_FILE;
 extern dissimilarityFunction DISTANCE_FUNCTION_TYPE;
 extern colorMappings COLOR_MAP_TYPE;
