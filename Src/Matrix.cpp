@@ -2,8 +2,8 @@
 
 Matrix::Matrix()
 {
-    minimumDistance = 10000.0f;
-    minimumDistanceIndex = 0;
+    maxDistance = -1;
+    maxDistanceIndex = 0;
     isAdjacency = false;
 }
 
@@ -78,10 +78,10 @@ void Matrix::fillMaxInfo()
     {
         for( unsigned int j = 0 ; j < matrixSize ; ++j)
         {
-            if( i !=j && matrixPtr[i][j] < minimumDistance )
+            if( i !=j && matrixPtr[i][j] >= maxDistance )
             {
-                minimumDistance = matrixPtr[i][j];
-                minimumDistanceIndex = j ;
+                maxDistance = matrixPtr[i][j];
+                maxDistanceIndex = j ;
             }
         }
     }
@@ -96,10 +96,10 @@ void Matrix::applyVAT()
         vertices.push_back(i);
     }
 
-    std::cout << "First chosen vertex index " << minimumDistanceIndex + 1 << std::endl ;
+    std::cout << "First chosen vertex index " << maxDistanceIndex + 1 << std::endl ;
 
-    verticesChosen.push_back(minimumDistanceIndex);
-    vertices.erase(std::remove(vertices.begin(), vertices.end(), minimumDistanceIndex), vertices.end());
+    verticesChosen.push_back(maxDistanceIndex);
+    vertices.erase(std::remove(vertices.begin(), vertices.end(), maxDistanceIndex), vertices.end());
 
     while( 0 != vertices.size() )
     {

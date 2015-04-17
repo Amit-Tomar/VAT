@@ -34,8 +34,8 @@ private:
 
     double ** matrixPtr;
     unsigned int matrixSize;
-    double minimumDistance;
-    int minimumDistanceIndex ;
+    double maxDistance;
+    int maxDistanceIndex ;
     bool isAdjacency;
     std::vector<unsigned int> verticesChosen;
 };
